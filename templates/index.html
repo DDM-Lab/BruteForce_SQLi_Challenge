@@ -6,8 +6,39 @@
     <title>{{ challenge_type }} Challenge</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
+    {% if alert %}
+    <script>
+      Swal.fire({
+        title: 'Alert',
+        text: "{{ alert }}",
+        icon: 'warning',
+        confirmButtonText: 'I understand',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      });
+    </script>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <script>
+            Swal.fire({
+              title: "{{ category.title() }}!",
+              text: "{{ message }}",
+              icon: "{{ category }}" == "danger" ? "error" : "{{ category }}",
+              confirmButtonText: 'OK',
+              allowOutsideClick: false,
+              allowEscapeKey: false
+            });
+          </script>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     <div class="container">
         <h1 class="mb-4">{{ challenge_type }} Challenge</h1>
         
@@ -34,12 +65,6 @@
                 <a href="{{ url_for('home') }}" class="text-decoration-none">Back to Login</a>
             </div>
         </form>
-        {% endif %}
-
-        {% if message %}
-        <div class="alert alert-{{ message_class }}" role="alert">
-            {{ message }}
-        </div>
         {% endif %}
 
         {% if show_credentials %}

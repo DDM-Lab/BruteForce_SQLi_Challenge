@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, redirect, url_for
 import sqlite3
 import os
 import random
+import time
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -11,6 +12,8 @@ usernames = ['admin', 'user1', 'user2', 'root', 'guest', 'manager', 'supervisor'
 passwords = ['password123', 'qwerty', '123456', 'letmein', 'welcome', 'admin123', 'secret', 'password1', '12345678', 'abc123', 'iloveyou', 'sunshine', 'dragon', 'monkey', 'football']
 
 login_attempts = 0
+MAX_ATTEMPTS = 5  # Maximum attempts before showing the alert
+DELAY_FACTOR = 2  # Seconds to delay for each attempt
 
 def create_brute_force_db():
     conn = sqlite3.connect('brute_force_users.db')
@@ -42,13 +45,22 @@ def home():
     global login_attempts
     message = ''
     message_class = ''
+    alert = ''
 
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+
+        # Implement delay based on login attempts
+        delay = min(login_attempts * DELAY_FACTOR, 30)  # Cap the delay at 30 seconds
+        time.sleep(delay)
+
         valid_user = authenticate_user(username, password)
 
         login_attempts += 1
+
+        if login_attempts >= MAX_ATTEMPTS:
+            alert = "Too many attempts. Server responses will be delayed. If you don't remember your password, you can use the 'Forgot Password' feature."
 
         if valid_user:
             conn_flags = sqlite3.connect('flags.db')
@@ -59,11 +71,19 @@ def home():
             conn_flags.close()
             message = f"Login successful! You've found the correct combination! Flag: {flag[0]}"
             message_class = 'success'
+            login_attempts = 0  # Reset attempts on successful login
         else:
-            message = "Login failed. Try again!"
+            message = f"Login failed. Try again! (Attempt {login_attempts})"
             message_class = 'danger'
 
-    return render_template('index.html', challenge_type='Brute Force', message=message, message_class=message_class, show_credentials=True, usernames=usernames, passwords=passwords)
+    return render_template('index.html', 
+                           challenge_type='Brute Force', 
+                           message=message, 
+                           message_class=message_class, 
+                           show_credentials=True, 
+                           usernames=usernames, 
+                           passwords=passwords,
+                           alert=alert)
 
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
