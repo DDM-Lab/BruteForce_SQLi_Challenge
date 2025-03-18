@@ -12,7 +12,7 @@ app.secret_key = os.urandom(24)
 TREATMENT_CONDITION = True
 BASE_DELAY = 2
 # Threshold to start rate limiting
-ATTEMPT_THRESHOLD = random.randint(25, 35)
+ATTEMPT_THRESHOLD = random.randint(5, 10)
 ATTEMPTS_AFTER_SWITCH = 4
 MAX_ATTEMPTS = 2*ATTEMPT_THRESHOLD
 
@@ -49,9 +49,9 @@ def determine_credential_source(username, password):
         return "list2"
     return "unknown"
 
+
 def calculate_delay(ip_address, username, password):
-    global attempt_counter, current_list_tracking, last_credentials
-    
+    global attempt_counter, current_list_tracking, last_credentials, MAX_ATTEMPTS
     current_source = determine_credential_source(username, password)
     # Initialize tracking for new IP addresses
     if ip_address not in current_list_tracking:
@@ -72,7 +72,6 @@ def calculate_delay(ip_address, username, password):
             MAX_ATTEMPTS = ATTEMPTS_AFTER_SWITCH
             # If participant switched list, reset delay
         
-        attempt_counter[ip_address] += 1
         last_credentials[ip_address] = {'username': username, 'password': password}
         
         if attempt_counter[ip_address] > ATTEMPT_THRESHOLD:
