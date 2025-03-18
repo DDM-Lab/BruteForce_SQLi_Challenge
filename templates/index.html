@@ -42,18 +42,35 @@
     <div class="container">
         <h1 class="mb-4">{{ challenge_type }} Challenge</h1>
         
+        <div class="alert alert-info">
+            <h4>Brute Force Challenge Instructions</h4>
+            <p>This is a demonstration of a brute force vulnerability. Two files containing possible credentials are available:</p>
+            <ul>
+                <li><a href="/credentials1.txt" target="_blank">credentials1.txt</a></li>
+                <li><a href="/credentials2.txt" target="_blank">credentials2.txt</a></li>
+            </ul>
+            <p>Use these files to attempt to find the correct username and password combination.</p>
+        </div>
+
+        {% if alert %}
+        <div class="alert alert-warning">{{ alert }}</div>
+        {% endif %}
+
+        {% if message %}
+        <div class="alert alert-{{ message_class }}">{{ message }}</div>
+        {% endif %}
+
         {% if challenge_type == 'Brute Force' %}
-        <form method="POST" class="mb-3">
-            <div class="mb-3">
-                <input type="text" class="form-control" name="username" placeholder="Username" required>
+        <form method="POST" class="mt-4">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control" id="username" name="username" required>
             </div>
-            <div class="mb-3">
-                <input type="password" class="form-control" name="password" placeholder="Password" required>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" required>
             </div>
-            <div class="d-flex justify-content-between align-items-center">
-                <button type="submit" class="btn btn-primary">Submit</button>
-                <a href="{{ url_for('forgot_password') }}" class="text-decoration-none">Forgot Password?</a>
-            </div>
+            <button type="submit" class="btn btn-primary mt-3">Login</button>
         </form>
         {% elif challenge_type == 'Forgot Password' %}
         <form method="POST" class="mb-3">
