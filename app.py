@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, flash
 import os
 import random
 import time
@@ -12,7 +12,7 @@ app.secret_key = os.urandom(24)
 TREATMENT_CONDITION = True
 BASE_DELAY = 2
 # Threshold to start rate limiting
-ATTEMPT_THRESHOLD = random.randint(5, 10)
+ATTEMPT_THRESHOLD = random.choice([50, 60, 70, 80, 90])
 ATTEMPTS_AFTER_SWITCH = 4
 MAX_ATTEMPTS = 2*ATTEMPT_THRESHOLD
 
@@ -20,6 +20,8 @@ MAX_ATTEMPTS = 2*ATTEMPT_THRESHOLD
 attempt_counter = defaultdict(int)
 current_list_tracking = {}
 last_credentials = defaultdict(dict)
+# Add session_data dictionary to track list switches and other metrics
+session_data = defaultdict(lambda: {'list_switches': 0, 'total_attempts': 0})
 
 def generate_dummy_credentials(count=100):
     credentials = []
@@ -51,21 +53,31 @@ def determine_credential_source(username, password):
 
 
 def calculate_delay(ip_address, username, password):
-    global attempt_counter, current_list_tracking, last_credentials, MAX_ATTEMPTS
+    global attempt_counter, current_list_tracking, last_credentials, MAX_ATTEMPTS, session_data
     current_source = determine_credential_source(username, password)
+    
     # Initialize tracking for new IP addresses
     if ip_address not in current_list_tracking:
         current_list_tracking[ip_address] = current_source
         attempt_counter[ip_address] = 1
+        # Initialize session_data for new IP if not already done
+        if 'list_switches' not in session_data[ip_address]:
+            session_data[ip_address] = {'list_switches': 0, 'total_attempts': 1}
+        else:
+            session_data[ip_address]['total_attempts'] += 1
     else:
         attempt_counter[ip_address] += 1
+        session_data[ip_address]['total_attempts'] += 1
 
     if not TREATMENT_CONDITION:
         # No treatment
         return BASE_DELAY
     else:
+        # Check if user switched lists
         if current_list_tracking[ip_address] != current_source and current_source != "unknown":
-            # If participant switched list, reset tracking
+            # If participant switched list, increment the switch counter
+            session_data[ip_address]['list_switches'] += 1
+            # Reset tracking
             current_list_tracking[ip_address] = current_source
             attempt_counter[ip_address] = 0
             # If participant switched list, lower threshold
@@ -88,32 +100,61 @@ def home():
     message = ''
     message_class = ''
     alert = ''
+    
+    # Create a default worldbuilding context
+    worldbuilding = {'first_visit': True}
+    
+    # Get client IP
+    ip_address = get_client_ip()
+    
+    # If this is not the first visit, set first_visit to False
+    if ip_address in session_data:
+        worldbuilding['first_visit'] = False
 
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        ip_address = get_client_ip()
         
-        delay = calculate_delay(ip_address, username, password)
-        time.sleep(delay)
+        # Mark as not first visit
+        worldbuilding['first_visit'] = False
         
-        # Simplified authentication
-        if attempt_counter[ip_address] >= MAX_ATTEMPTS:
-            message = "Login successful! You've found the correct combination! Flag: CTF{br0t3_f0rc3_m4st3r}"
-            message_class = 'success'
-            attempt_counter[ip_address] = 0
-        else:
-            message = f"Login failed.(Attempt {attempt_counter[ip_address]})"
-            message_class = 'danger'
+        try:
+            delay = calculate_delay(ip_address, username, password)
+            time.sleep(delay)
             
-        if attempt_counter[ip_address] > ATTEMPT_THRESHOLD and TREATMENT_CONDITION:
-            alert = f"High number of attempts detected. Response delay: {delay:.1f}s"
+            # Simplified authentication
+            if attempt_counter[ip_address] >= MAX_ATTEMPTS:
+                message = "Login successful! You've found the correct combination! Flag: CTF{br0t3_f0rc3_m4st3r}"
+                message_class = 'success'
+                attempt_counter[ip_address] = 0
+            else:
+                message = f"Login failed. (Attempt {attempt_counter[ip_address]})"
+                message_class = 'danger'
+                
+            if attempt_counter[ip_address] > ATTEMPT_THRESHOLD and TREATMENT_CONDITION:
+                alert = f"High number of attempts detected. Response delay: {delay:.1f}s"
+        except Exception as e:
+            message = f"An error occurred: {str(e)}"
+            message_class = 'danger'
+
+    # Prepare Qualtrics data if needed
+    qualtrics_data = None
+    if ip_address in session_data:
+        qualtrics_data = {
+            'condition': 1 if TREATMENT_CONDITION else 0,
+            't': ATTEMPT_THRESHOLD,
+            'total_attempts': session_data[ip_address]['total_attempts'],
+            'list_switches': session_data[ip_address]['list_switches'],
+            'success': message_class == 'success'
+        }
 
     return render_template('index.html', 
                          challenge_type='Brute Force', 
                          message=message, 
                          message_class=message_class, 
-                         alert=alert)
+                         alert=alert,
+                         worldbuilding=worldbuilding,
+                         qualtrics_data=qualtrics_data)
 
 
 @app.route('/credentials1.txt')
