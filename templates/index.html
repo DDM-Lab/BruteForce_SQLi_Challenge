@@ -3,16 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ challenge_type }} Challenge</title>
+    <title>DarkNet Credential Vault</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #161b22;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+        }
+        h1 {
+            color: #58a6ff;
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 15px;
+        }
+        .terminal-text {
+            font-family: 'Courier New', monospace;
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #7ee787;
+            white-space: pre-line;
+        }
+        .btn-hacker {
+            background-color: #238636;
+            border-color: #238636;
+            color: white;
+        }
+        .btn-hacker:hover {
+            background-color: #2ea043;
+            border-color: #2ea043;
+            color: white;
+        }
+        .list-badge {
+            background-color: #1f6feb;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+        .qualtrics-data {
+            display: none;
+            margin-top: 20px;
+            background-color: #0d1117;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px dashed #58a6ff;
+        }
+        .card {
+            background-color: #0d1117 !important;
+            border: 1px solid #30363d !important;
+        }
+        .card-header {
+            border-bottom: 1px solid #30363d !important;
+        }
+        .btn-outline-primary {
+            color: #58a6ff;
+            border-color: #58a6ff;
+        }
+        .btn-outline-primary:hover {
+            background-color: #1f6feb;
+            border-color: #1f6feb;
+        }
+        .btn-outline-warning {
+            color: #e3b341;
+            border-color: #e3b341;
+        }
+        .btn-outline-warning:hover {
+            background-color: #bb8009;
+            border-color: #bb8009;
+            color: #fff;
+        }
+        .alert {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+        }
+        .alert-danger {
+            border-left: 4px solid #f85149;
+        }
+        .alert-success {
+            border-left: 4px solid #56d364;
+        }
+    </style>
 </head>
 <body>
     {% if alert %}
     <script>
       Swal.fire({
-        title: 'Alert',
+        title: 'Security Alert',
         text: "{{ alert }}",
         icon: 'warning',
         confirmButtonText: 'I understand',
@@ -40,89 +131,102 @@
     {% endwith %}
 
     <div class="container">
-        <h1 class="mb-4">{{ challenge_type }} Challenge</h1>
+        <h1>DarkNet Credential Vault</h1>
         
-        <div class="alert alert-info">
-            <h4>Brute Force Challenge Instructions</h4>
-            <p>This is a demonstration of a brute force vulnerability. Two files containing possible credentials are available:</p>
-            <ul>
-                <li><a href="/credentials1.txt" target="_blank">credentials1.txt</a></li>
-                <li><a href="/credentials2.txt" target="_blank">credentials2.txt</a></li>
-            </ul>
-            <p>Use these files to attempt to find the correct username and password combination.</p>
+        {% if worldbuilding.first_visit %}
+        <div class="terminal-text">
+            [DarkNet Terminal Access]
+            Connection established to SecureVault network...
+            
+            >> WELCOME TO THE UNDERGROUND <<
+            
+            While exploring a hidden DarkNet forum, you've discovered a secure login portal that supposedly contains valuable data. Your contact mentioned there are two credential lists floating around:
+            
+            1. "SecretVault Premium Collection" - A rare compilation of credentials allegedly stolen from high-security systems. These credentials are supposed to be "cleaner" and less likely to trigger security systems.
+            
+            2. "CrackStation Common Database" - A widely circulated list of common credentials. Rumor has it these are extensively monitored and more likely to trigger defensive countermeasures.
+            
+            No one knows for sure which list is which - they're only labeled as credentials1.txt and credentials2.txt.
+            
+            THE CHALLENGE:
+            - You need to brute force your way into this system using one of these lists
+            - If you switch, you'll lose all progress and have to start over with the new list
+            
+            Choose wisely. The clock is ticking...
         </div>
-
-        {% if alert %}
-        <div class="alert alert-warning">{{ alert }}</div>
         {% endif %}
+        
+        <div class="card bg-dark border-secondary mb-4">
+            <div class="card-header bg-dark text-light border-secondary">
+                <h4 class="mb-0">Lists</h4>
+            </div>
+            <div class="card-body bg-dark text-light">
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <a href="/credentials1.txt" target="_blank" class="btn btn-outline-warning w-100 mb-2">Download credentials1.txt</a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="/credentials2.txt" target="_blank" class="btn btn-outline-warning w-100 mb-2">Download credentials2.txt</a>
+                    </div>
+                </div>
+        
+            </div>
+        </div>
 
         {% if message %}
         <div class="alert alert-{{ message_class }}">{{ message }}</div>
         {% endif %}
 
-        {% if challenge_type == 'Brute Force' %}
         <form method="POST" class="mt-4">
-            <div class="form-group">
+            <div class="form-group mb-3">
                 <label for="username">Username:</label>
-                <input type="text" class="form-control" id="username" name="username" required>
+                <input type="text" class="form-control bg-dark text-light" id="username" name="username" required>
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 <label for="password">Password:</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+                <input type="password" class="form-control bg-dark text-light" id="password" name="password" required>
             </div>
-            <button type="submit" class="btn btn-primary mt-3">Login</button>
+            <button type="submit" class="btn btn-hacker w-100 mt-3">Attempt Access</button>
         </form>
-        {% elif challenge_type == 'Forgot Password' %}
-        <form method="POST" class="mb-3">
-            <div class="mb-3">
-                <input type="text" class="form-control" name="username" placeholder="Username" required>
-            </div>
-            <div class="d-flex justify-content-between align-items-center">
-                <button type="submit" class="btn btn-primary">Reset Password</button>
-                <a href="{{ url_for('home') }}" class="text-decoration-none">Back to Login</a>
-            </div>
-        </form>
-        {% endif %}
-
-        {% if show_credentials %}
-        <div class="credentials mt-4">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header bg-info text-white">
-                            <h5 class="mb-0">Available Usernames</h5>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-group list-group-flush">
-                                {% for username in usernames %}
-                                <li class="list-group-item">{{ username }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header bg-warning text-dark">
-                            <h5 class="mb-0">Available Passwords</h5>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-group list-group-flush">
-                                {% for password in passwords %}
-                                <li class="list-group-item">{{ password }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        
+        {% if qualtrics_data %}
+        <div class="qualtrics-data" id="qualtrics-data">
+            <h5>Qualtrics Data</h5>
+            <pre id="qualtrics-json">{{ qualtrics_data | tojson(indent=2) }}</pre>
+            <button class="btn btn-sm btn-info" onclick="copyQualtricsData()">Copy Data for Qualtrics</button>
         </div>
-        {% endif %}
-
-        {% if debug %}
-        <div class="alert alert-info mt-3" role="alert">
-            Debug: {{ debug }}
-        </div>
+        <script>
+            // Make Qualtrics data visible when we have it
+            document.getElementById('qualtrics-data').style.display = 'block';
+            
+            function copyQualtricsData() {
+                const data = document.getElementById('qualtrics-json').textContent;
+                navigator.clipboard.writeText(data).then(() => {
+                    Swal.fire({
+                        title: 'Copied!',
+                        text: 'Data copied to clipboard for Qualtrics',
+                        icon: 'success',
+                        timer: 1500
+                    });
+                });
+            }
+            
+            // Format for Qualtrics embedded data
+            window.addEventListener('load', function() {
+                // Check if we're in a Qualtrics frame
+                if (window.parent && window.parent !== window) {
+                    try {
+                        // Send data to Qualtrics if in iframe
+                        window.parent.postMessage({
+                            event: 'ctf_data',
+                            data: {{ qualtrics_data | tojson }}
+                        }, '*');
+                    } catch (e) {
+                        console.error('Failed to send data to parent frame:', e);
+                    }
+                }
+            });
+        </script>
         {% endif %}
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

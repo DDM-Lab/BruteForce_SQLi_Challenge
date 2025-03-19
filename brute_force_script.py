@@ -1,5 +1,6 @@
 import requests
 import time
+import json
 from tqdm import tqdm
 from bs4 import BeautifulSoup
 
@@ -11,6 +12,18 @@ def load_credentials(url):
             username, password = line.strip().split(':')
             credentials.append((username, password))
     return credentials
+
+def extract_qualtrics_data(html_content):
+    """Extract Qualtrics data from the response HTML"""
+    soup = BeautifulSoup(html_content, 'html.parser')
+    qualtrics_json = soup.find('pre', id='qualtrics-json')
+    if qualtrics_json:
+        try:
+            data = json.loads(qualtrics_json.text)
+            return data
+        except json.JSONDecodeError:
+            print("Error parsing Qualtrics data JSON")
+    return None
 
 def main():
     base_url = 'http://localhost:8087'
@@ -29,7 +42,8 @@ def main():
     
     # Setup progress bar
     pbar = tqdm(stored_credentials, desc="Testing credentials")
-    
+    print("\n[REMINDER] You can press Ctrl+C at any time to interrupt and switch to the other list")
+
     try:
         for username, password in pbar:
             # Try to login with credentials from the stored list
@@ -52,13 +66,20 @@ def main():
                 print(f"\nSuccess! Found working credentials:")
                 print(f"Username: {username}")
                 print(f"Password: {password}")
+                
+                # Extract and display Qualtrics data
+                qualtrics_data = extract_qualtrics_data(response.text)
+                if qualtrics_data:
+                    print("\033[91mCopy the text bellow to Qualtrics to get compensation for this challenge.\033[0m")
+                    print(json.dumps(qualtrics_data, indent=2))
+                    print("\033[91mCopy the text above to Qualtrics to get compensation for this challenge.\033[0m")
                 break
             
-            # Let the server control the delay
-            # We don't need our own delay anymore since the server implements it
             
     except KeyboardInterrupt:
         print("\nAttack interrupted by user")
+        print("You can restart the script and select the other credential list if you want to switch")
+
     
 if __name__ == "__main__":
-    main() 
+    main()
