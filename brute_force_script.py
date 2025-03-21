@@ -42,7 +42,7 @@ def main():
     
     # Setup progress bar
     pbar = tqdm(stored_credentials, desc="Testing credentials")
-    print("\n[REMINDER] You can press Ctrl+C at any time to interrupt and switch to the other list")
+    tqdm.write("\n[REMINDER] You can press Ctrl+C at any time to interrupt and switch to the other list.")
 
     try:
         for username, password in pbar:
@@ -57,9 +57,9 @@ def main():
             alerts = soup.find_all('div', class_='alert')
             for alert in alerts:
                 if 'alert-danger' in alert.get('class', []) or 'alert-success' in alert.get('class', []):
-                    print(f"\nServer: {alert.text.strip()}")
+                    tqdm.write(f"\nServer: {alert.text.strip()}")
                 elif 'alert-warning' in alert.get('class', []):  # Also show delay warnings
-                    print(f"\nWarning: {alert.text.strip()}")
+                    tqdm.write(f"\nWarning: {alert.text.strip()}")
             
             # Check if login was successful
             if "Login successful" in response.text:

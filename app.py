@@ -15,6 +15,7 @@ BASE_DELAY = 2
 ATTEMPT_THRESHOLD = random.choice([50, 60, 70, 80, 90])
 ATTEMPTS_AFTER_SWITCH = 4
 MAX_ATTEMPTS = 2*ATTEMPT_THRESHOLD
+LINEAR_DELAY_INCREASE = 0.2
 
 # Tracking dictionaries
 attempt_counter = defaultdict(int)
@@ -89,7 +90,6 @@ def calculate_delay(ip_address, username, password):
         if attempt_counter[ip_address] > ATTEMPT_THRESHOLD:
             # If we are above threshold, increase delay
             # This is a simple linear increase where the delay is +0.2 seconds per attempt
-            LINEAR_DELAY_INCREASE = 0.2
             return BASE_DELAY + (attempt_counter[ip_address] - ATTEMPT_THRESHOLD) * LINEAR_DELAY_INCREASE
         else:
             return BASE_DELAY
@@ -128,7 +128,7 @@ def home():
                 message_class = 'success'
                 attempt_counter[ip_address] = 0
             else:
-                message = f"Login failed. (Attempt {attempt_counter[ip_address]})"
+                message = f"Login failed."
                 message_class = 'danger'
                 
             if attempt_counter[ip_address] > ATTEMPT_THRESHOLD and TREATMENT_CONDITION:
