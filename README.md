@@ -4,7 +4,7 @@ This application simulates a login system vulnerable to brute force attacks.
 
 ## Prerequisites
 
-You will need to have Docker and Docker Compose installed in your computer to run this. This is separate from Python requirements. To install Docker, follow the instructions on Docker's website for your platform.
+You will need to have Docker and Docker Compose installed in your computer to run this. This is separate from Python requirements. To install Docker, follow the instructions on Docker's website for your platform: *   Docker Installed https://www.docker.com/get-started/
 
 ## Setup and Running the Application
 
@@ -23,6 +23,11 @@ You will need to have Docker and Docker Compose installed in your computer to ru
 
 4. Access the application:
 Open a web browser and navigate to `http://localhost:8087`
+
+
+## Control and Treatment
+To change from control to treatment go to app.py and change the global variable `TREATMENT_CONDITION` to `True` or `False` depending on which version you want to run.
+
 
 ## Solution
 
