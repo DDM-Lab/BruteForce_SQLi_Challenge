@@ -63,10 +63,7 @@ def main():
             
             # Check if login was successful
             if "Login successful" in response.text:
-                print(f"\nSuccess! Found working credentials:")
-                print(f"Username: {username}")
-                print(f"Password: {password}")
-                
+                print(f"\nSuccess! Found working credentials!")
                 # Extract and display Qualtrics data
                 qualtrics_data = extract_qualtrics_data(response.text)
                 if qualtrics_data:
