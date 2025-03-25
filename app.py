@@ -72,6 +72,7 @@ def calculate_delay(ip_address, username, password):
 
     if not TREATMENT_CONDITION:
         # No treatment
+        # FIXME is this correct? Are we incrementing the list_switches counter correctly?
         return BASE_DELAY
     else:
         # Check if user switched lists
@@ -145,7 +146,6 @@ def home():
             't': ATTEMPT_THRESHOLD,
             'total_attempts': session_data[ip_address]['total_attempts'],
             'list_switches': session_data[ip_address]['list_switches'],
-            'success': message_class == 'success'
         }
 
     return render_template('index.html', 
