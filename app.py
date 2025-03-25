@@ -3,13 +3,29 @@ import os
 import random
 import time
 import string
+import argparse
 from collections import defaultdict
+
+# Parse command-line arguments
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Run the Flask application with treatment settings")
+    parser.add_argument(
+        "--treatment",
+        type=str,
+        choices=["true", "false", "True", "False"],
+        default=os.environ.get("TREATMENT", "True"),
+        help="Set the treatment condition (True/False, default: True, can also be set with TREATMENT env variable)"
+    )
+    return parser.parse_args()
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
+# Parse arguments
+args = parse_arguments()
+
 # Configuration
-TREATMENT_CONDITION = True
+TREATMENT = args.treatment.lower() == "true"
 BASE_DELAY = 2
 # Threshold to start rate limiting
 ATTEMPT_THRESHOLD = random.choice([50, 60, 70, 80, 90])
@@ -70,7 +86,7 @@ def calculate_delay(ip_address, username, password):
         attempt_counter[ip_address] += 1
         session_data[ip_address]['total_attempts'] += 1
 
-    if not TREATMENT_CONDITION:
+    if not TREATMENT:
         # No treatment
         # FIXME is this correct? Are we incrementing the list_switches counter correctly?
         return BASE_DELAY
@@ -132,7 +148,7 @@ def home():
                 message = f"Login failed."
                 message_class = 'danger'
                 
-            if attempt_counter[ip_address] > ATTEMPT_THRESHOLD and TREATMENT_CONDITION:
+            if attempt_counter[ip_address] > ATTEMPT_THRESHOLD and TREATMENT:
                 alert = f"High number of attempts detected. Response delay: {delay:.1f}s"
         except Exception as e:
             message = f"An error occurred: {str(e)}"
@@ -142,7 +158,7 @@ def home():
     qualtrics_data = None
     if ip_address in session_data:
         qualtrics_data = {
-            'condition': 1 if TREATMENT_CONDITION else 0,
+            'condition': 1 if TREATMENT else 0,
             't': ATTEMPT_THRESHOLD,
             'total_attempts': session_data[ip_address]['total_attempts'],
             'list_switches': session_data[ip_address]['list_switches'],
