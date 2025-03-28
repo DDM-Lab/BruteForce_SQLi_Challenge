@@ -167,6 +167,7 @@ def home():
         't': ATTEMPT_THRESHOLD,
         'total_attempts': session_data[ip_address]['total_attempts'],
         'list_switches': session_data[ip_address]['list_switches'],
+        'flag': 'CTF{br0t3_f0rc3_m4st3r}'
     }
 
     return render_template('index.html', 
