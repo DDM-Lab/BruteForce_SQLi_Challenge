@@ -6,6 +6,9 @@ import string
 import argparse
 from collections import defaultdict
 
+
+treatment_default = True
+
 # Parse command-line arguments
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Run the Flask application with treatment settings")
@@ -13,7 +16,7 @@ def parse_arguments():
         "--treatment",
         type=str,
         choices=["true", "false", "True", "False"],
-        default=os.environ.get("TREATMENT", "True"),
+        default=os.environ.get("TREATMENT", treatment_default),
         help="Set the treatment condition (True/False, default: True, can also be set with TREATMENT env variable)"
     )
     return parser.parse_args()
@@ -21,16 +24,17 @@ def parse_arguments():
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-# Parse arguments
 args = parse_arguments()
-
 # Configuration
-TREATMENT = args.treatment.lower() == "true"
-BASE_DELAY = 2
+if args.treatment is not None:
+    TREATMENT = str(args.treatment).lower() == "true"
+else:
+    TREATMENT = treatment_default
+BASE_DELAY = 0.5
 # Threshold to start rate limiting
 ATTEMPT_THRESHOLD = random.choice([50, 60, 70, 80, 90])
 ATTEMPTS_AFTER_SWITCH = 4
-MAX_ATTEMPTS = 2*ATTEMPT_THRESHOLD
+MAX_ATTEMPTS = 100
 LINEAR_DELAY_INCREASE = 0.2
 
 # Tracking dictionaries
@@ -87,9 +91,9 @@ def calculate_delay(ip_address, username, password):
         session_data[ip_address]['total_attempts'] += 1
 
     if not TREATMENT:
-        # No treatment
-        # FIXME is this correct? Are we incrementing the list_switches counter correctly?
+        last_credentials[ip_address] = {'username': username, 'password': password}
         return BASE_DELAY
+        
     else:
         # Check if user switched lists
         if current_list_tracking[ip_address] != current_source and current_source != "unknown":
@@ -107,7 +111,7 @@ def calculate_delay(ip_address, username, password):
         if attempt_counter[ip_address] > ATTEMPT_THRESHOLD:
             # If we are above threshold, increase delay
             # This is a simple linear increase where the delay is +0.2 seconds per attempt
-            return BASE_DELAY + (attempt_counter[ip_address] - ATTEMPT_THRESHOLD) * LINEAR_DELAY_INCREASE
+            return BASE_DELAY + (attempt_counter[ip_address] - ATTEMPT_THRESHOLD) ** LINEAR_DELAY_INCREASE
         else:
             return BASE_DELAY
 
@@ -141,9 +145,13 @@ def home():
             
             # Simplified authentication
             if attempt_counter[ip_address] >= MAX_ATTEMPTS:
-                message = "Login successful! You've found the correct combination! Flag: CTF{br0t3_f0rc3_m4st3r}"
+                # Retrieve the last credentials submitted by the user
+                creds = last_credentials.get(ip_address, {'username': 'unknown', 'password': 'unknown'})
+                # Construct a message that includes the username, password, and the flag
+                message = (f"Login successful! ")
                 message_class = 'success'
                 attempt_counter[ip_address] = 0
+
             else:
                 message = f"Login failed."
                 message_class = 'danger'
@@ -154,15 +162,12 @@ def home():
             message = f"An error occurred: {str(e)}"
             message_class = 'danger'
 
-    # Prepare Qualtrics data if needed
-    qualtrics_data = None
-    if ip_address in session_data:
-        qualtrics_data = {
-            'condition': 1 if TREATMENT else 0,
-            't': ATTEMPT_THRESHOLD,
-            'total_attempts': session_data[ip_address]['total_attempts'],
-            'list_switches': session_data[ip_address]['list_switches'],
-        }
+    qualtrics_data = {
+        'condition': 1 if TREATMENT else 0,
+        't': ATTEMPT_THRESHOLD,
+        'total_attempts': session_data[ip_address]['total_attempts'],
+        'list_switches': session_data[ip_address]['list_switches'],
+    }
 
     return render_template('index.html', 
                          challenge_type='Brute Force', 

@@ -63,13 +63,16 @@ def main():
             
             # Check if login was successful
             if "Login successful" in response.text:
-                print(f"\nSuccess! Found working credentials!")
+                pbar.close()
+                print(f"\nSuccess! Found working credentials! But now that you got the flag they were blocked "
+                           f"from the server. ")
                 # Extract and display Qualtrics data
                 qualtrics_data = extract_qualtrics_data(response.text)
                 if qualtrics_data:
                     print("\033[91mCopy the text bellow to Qualtrics to get compensation for this challenge.\033[0m")
                     print(json.dumps(qualtrics_data, indent=2))
                     print("\033[91mCopy the text above to Qualtrics to get compensation for this challenge.\033[0m")
+                
                 break
             
             
