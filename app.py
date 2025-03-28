@@ -148,7 +148,7 @@ def home():
                 # Retrieve the last credentials submitted by the user
                 creds = last_credentials.get(ip_address, {'username': 'unknown', 'password': 'unknown'})
                 # Construct a message that includes the username, password, and the flag
-                message = (f"Login successful! Flag: CTF{{br0t3_f0rc3_m4st3r}}")
+                message = (f"Login successful! Flag: picoCTF{{br0t3_f0rc3_m4st3r}}")
                 message_class = 'success'
                 attempt_counter[ip_address] = 0
 
