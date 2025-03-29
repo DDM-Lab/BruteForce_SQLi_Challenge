@@ -144,7 +144,7 @@ def home():
             time.sleep(delay)
             
             # Simplified authentication
-            if attempt_counter[ip_address] >= MAX_ATTEMPTS:
+            if attempt_counter[ip_address] > MAX_ATTEMPTS:
                 # Retrieve the last credentials submitted by the user
                 creds = last_credentials.get(ip_address, {'username': 'unknown', 'password': 'unknown'})
                 # Construct a message that includes the username, password, and the flag
@@ -165,7 +165,7 @@ def home():
     qualtrics_data = {
         'condition': 1 if TREATMENT else 0,
         't': ATTEMPT_THRESHOLD,
-        'total_attempts': session_data[ip_address]['total_attempts']-session_data[ip_address]['list_switches'],
+        'total_attempts': session_data[ip_address]['total_attempts']-session_data[ip_address]['list_switches']-1,
         'list_switches': session_data[ip_address]['list_switches'],
         'flag': 'picoCTF{br0t3_f0rc3_m4st3r}'
     }

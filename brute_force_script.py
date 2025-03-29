@@ -38,7 +38,7 @@ def process_credentials(creds_url, session, base_url):
                 pbar.close()
                 print("\n\033[92mValid credentials found!\033[0m")
                 print(f"\033[94mUsername: {username}\033[0m\n\033[94mPassword: {password}\033[0m")
-                print(f"\nBut now that you got the flag they were blocked from the server. ")
+                print(f"But now that you got the flag they were blocked from the server.\n")
                 return True, extract_qualtrics_data(response.text)
                 
         return False, None
@@ -85,7 +85,7 @@ def main():
             continue
             
         # Show progress after each full list attempt
-        print(f"\nList 1: {list_times['1']:.1f}s | List 2: {list_times['2']:.1f}s")
+        #print(f"\nList 1: {list_times['1']:.1f}s | List 2: {list_times['2']:.1f}s")
 
 if __name__ == "__main__":
     main()
