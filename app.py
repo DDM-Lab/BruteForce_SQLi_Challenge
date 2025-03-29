@@ -165,9 +165,9 @@ def home():
     qualtrics_data = {
         'condition': 1 if TREATMENT else 0,
         't': ATTEMPT_THRESHOLD,
-        'total_attempts': session_data[ip_address]['total_attempts'],
+        'total_attempts': session_data[ip_address]['total_attempts']-session_data[ip_address]['list_switches'],
         'list_switches': session_data[ip_address]['list_switches'],
-        'flag': 'CTF{br0t3_f0rc3_m4st3r}'
+        'flag': 'picoCTF{br0t3_f0rc3_m4st3r}'
     }
 
     return render_template('index.html', 

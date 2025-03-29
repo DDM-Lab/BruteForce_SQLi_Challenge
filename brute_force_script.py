@@ -38,6 +38,7 @@ def process_credentials(creds_url, session, base_url):
                 pbar.close()
                 print("\n\033[92mValid credentials found!\033[0m")
                 print(f"\033[94mUsername: {username}\033[0m\n\033[94mPassword: {password}\033[0m")
+                print(f"\nBut now that you got the flag they were blocked from the server. ")
                 return True, extract_qualtrics_data(response.text)
                 
         return False, None
@@ -70,9 +71,9 @@ def main():
                         "list_2_time": list_times['2'],
                         "total_time": total_time
                     }
-                    print("\033[91m▼▼▼ Copy text below to Qualtrics ▼▼▼\033[0m")
+                    print("\033[91mCopy the text bellow to Qualtrics to get compensation for this challenge.\033[0m")
                     print(json.dumps(qualtrics_data, indent=2))
-                    print("\033[91m▲▲▲ Copy text above to Qualtrics ▲▲▲\033[0m")
+                    print("\033[91mCopy the text above to Qualtrics to get compensation for this challenge.\033[0m")
                 break
                 
         except KeyboardInterrupt:
