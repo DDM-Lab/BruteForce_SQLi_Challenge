@@ -32,7 +32,7 @@ else:
     TREATMENT = treatment_default
 BASE_DELAY = 0.5
 # Threshold to start rate limiting
-ATTEMPT_THRESHOLD = random.choice([50, 60, 70, 80, 90])
+ATTEMPT_THRESHOLD = random.choice([30, 40, 50, 60, 70])
 ATTEMPTS_AFTER_SWITCH = 4
 MAX_ATTEMPTS = 100
 LINEAR_DELAY_INCREASE = 0.2
@@ -157,7 +157,7 @@ def home():
                 message_class = 'danger'
                 
             if attempt_counter[ip_address] > ATTEMPT_THRESHOLD and TREATMENT:
-                alert = f"High number of attempts detected. Response delay: {delay:.1f}s"
+                alert = f"High number of attempts detected. Throttling detected in this list."
         except Exception as e:
             message = f"An error occurred: {str(e)}"
             message_class = 'danger'

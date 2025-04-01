@@ -96,16 +96,7 @@
 </head>
 <body>
     {% if alert %}
-    <script>
-      Swal.fire({
-        title: 'Security Alert',
-        text: "{{ alert }}",
-        icon: 'warning',
-        confirmButtonText: 'I understand',
-        allowOutsideClick: false,
-        allowEscapeKey: false
-      });
-    </script>
+    <div class="alert alert-warning" style="display: none;">{{ alert }}</div>
     {% endif %}
 
     {% with messages = get_flashed_messages(with_categories=true) %}

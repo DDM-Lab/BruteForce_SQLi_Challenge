@@ -49,7 +49,13 @@ def process_credentials(creds_url, session, base_url):
             for alert in soup.find_all('div', class_='alert'):
                 class_list = alert.get('class', [])
                 alert_type = 'Server' if 'alert-danger' in class_list or 'alert-success' in class_list else 'Warning'
-                tqdm.write(f"\n{alert_type}: {alert.text.strip()}")
+                if alert_type == "Warning":
+                    alert_text = f"\033[93m{alert.text.strip()}\033[0m"
+                else:
+                    alert_text = alert.text.strip()                    
+                tqdm.write(f"\n{alert_type}: {alert_text}")
+                if "Login successful" not in alert_text:
+                    tqdm.write(f"\nYou can switch lists by pressing Ctrl+C, but will lose progress.")
             
             if "Login successful" in response.text:
                 pbar.close()
