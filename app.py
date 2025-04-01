@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, flash
+from flask import Flask, request, render_template, flash, send_file
 import os
 import random
 import time
@@ -186,6 +186,11 @@ def credentials1():
 @app.route('/credentials2.txt')
 def credentials2():
     return '\n'.join(CREDENTIALS_LIST2), 200, {'Content-Type': 'text/plain'}
+
+@app.route('/brute_force_script.py')
+def download_script():
+    filepath = os.path.abspath('brute_force_script.py')
+    return send_file(filepath, as_attachment=True)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8087, debug=False)

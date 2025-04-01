@@ -135,20 +135,21 @@
             
             >> WELCOME TO THE UNDERGROUND <<
             
-            While exploring a hidden DarkNet forum, you've discovered a secure login portal that supposedly contains valuable data. Your contact mentioned there are two credential lists floating around:
-            
-            1. "SecretVault Premium Collection" - A rare compilation of credentials allegedly stolen from high-security systems. These credentials are supposed to be "cleaner" and less likely to trigger security systems.
-            
-            2. "CrackStation Common Database" - A widely circulated list of common credentials. Rumor has it these are extensively monitored and more likely to trigger defensive countermeasures.
-            
-            No one knows for sure which list is which - they're only labeled as credentials1.txt and credentials2.txt.
-            
-            THE CHALLENGE:
-            - Use a darkweb script brute_force_script.py to attempt to access the system
-            - You need to brute force your way into this system using one of these lists
-            - If you switch, you'll lose all progress and have to start over with the new list
-            
-            Choose wisely. The clock is ticking...
+            [DarkNet Terminal Access]
+                Connection established to SecureVault network…
+
+                You've found a brute-force script circulating in a dark web forum: brute_force_script.py. It's designed to attack a login portal tied to valuable data. The script prompts you to choose between two credential lists:
+                    •	credentials1.txt
+                    •	credentials2.txt
+
+                No one knows which list is which, but one is fast and clean, while the other may trigger security countermeasures and slow down over time.
+
+                ⚠️ Important:
+                    •	You can switch lists at any time using the script, but doing so resets all progress.
+                    •	If your current list slows down, it might be the bad one. Switching could help.
+
+                Run the script. Make your choice.
+                The clock is ticking...
         </div>
         {% endif %}
         
@@ -164,6 +165,10 @@
                     <div class="col-md-6">
                         <a href="/credentials2.txt" target="_blank" class="btn btn-outline-warning w-100 mb-2">Download credentials2.txt</a>
                     </div>
+                </div>
+
+                <div class="col-md-12">
+                    <a href="/brute_force_script.py" target="_blank" class="btn btn-outline-primary w-100 mb-2">Download brute_force_script.py</a>
                 </div>
         
             </div>
