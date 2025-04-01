@@ -3,6 +3,7 @@ import time
 import json
 from tqdm import tqdm
 from bs4 import BeautifulSoup
+import os
 
 def load_credentials(url):
     response = requests.get(url)
@@ -16,6 +17,22 @@ def extract_qualtrics_data(html_content):
         except json.JSONDecodeError:
             print("Error parsing Qualtrics JSON")
     return None
+
+def write_qualtrics_output(data: dict) -> None:
+    """Write the Qualtrics output to a file instead of printing it.
+       If the file already exists, print a message and do not overwrite it."""
+    output_file = "qualtrics_data.txt"
+    output_text = (
+        "Upload this file to Qualtrics to get compensation for this challenge.\n"
+        + json.dumps(data, indent=2)
+    )
+    
+    if os.path.exists(output_file):
+        print(f"Output file '{os.path.abspath(output_file)}' already exists. Please upload this file to Qualtrics to get compensation for this challenge.")
+    else:
+        with open(output_file, "w") as f:
+            f.write(output_text)
+        print(f"Output file '{os.path.abspath(output_file)}' has been created. Please upload this file to Qualtrics to get compensation for this challenge.")
 
 def process_credentials(creds_url, session, base_url):
     """Returns: (success_status, qualtrics_data)"""
@@ -71,9 +88,8 @@ def main():
                         "list_2_time": list_times['2'],
                         "total_time": total_time
                     }
-                    print("\033[91mCopy the text below to Qualtrics to get compensation for this challenge.\033[0m")
-                    print(json.dumps(qualtrics_data, indent=2))
-                    print("\033[91mCopy the text above to Qualtrics to get compensation for this challenge.\033[0m")
+                    write_qualtrics_output(qualtrics_data)
+
                 break
                 
         except KeyboardInterrupt:
