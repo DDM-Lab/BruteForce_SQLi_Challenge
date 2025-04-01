@@ -71,7 +71,7 @@ def main():
                         "list_2_time": list_times['2'],
                         "total_time": total_time
                     }
-                    print("\033[91mCopy the text bellow to Qualtrics to get compensation for this challenge.\033[0m")
+                    print("\033[91mCopy the text below to Qualtrics to get compensation for this challenge.\033[0m")
                     print(json.dumps(qualtrics_data, indent=2))
                     print("\033[91mCopy the text above to Qualtrics to get compensation for this challenge.\033[0m")
                 break
