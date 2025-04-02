@@ -21,7 +21,7 @@ def extract_qualtrics_data(html_content):
 def write_qualtrics_output(data: dict) -> None:
     """Write the Qualtrics output to a file instead of printing it.
        If the file already exists, print a message and do not overwrite it."""
-    output_file = "qualtrics_data.txt"
+    output_file = "brute_force_challenge.txt"
     output_text = (
         "Upload this file to Qualtrics to get compensation for this challenge.\n"
         + json.dumps(data, indent=2)
