@@ -18,9 +18,20 @@
                     <strong>Password:</strong> {{ password }}
                 </div>
 
-                <div class="mt-4">
-                    <h4>Challenge Statistics</h4>
-                    <textarea class="form-control" rows="5" readonly>{{ qualtrics_data | tojson(indent=2) }}</textarea>
+                <div class="alert alert-info">
+                    <strong>Flag:</strong> {{ flag }}
+                </div>
+
+
+                <div class="card mt-1 border-danger">
+                    <div class="card-header bg-danger text-white">
+                        <h4 class="mb-0">IMPORTANT: Study Compensation Information</h4>
+                    </div>
+                    <div class="card-body">
+                        <a href="{{ url_for('download_qualtrics') }}" class="btn btn-primary mt-3">
+                            Download Qualtrics Data
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

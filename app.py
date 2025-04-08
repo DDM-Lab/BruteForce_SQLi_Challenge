@@ -6,6 +6,8 @@ import string
 import argparse
 from collections import defaultdict
 import logging
+import json
+import io
 
 # Add at the start of your file, after the other imports
 logging.basicConfig(level=logging.INFO)
@@ -33,16 +35,18 @@ if args.treatment is not None:
     TREATMENT = str(args.treatment).lower() == "true"
 else:
     TREATMENT = treatment_default
-BASE_DELAY = 3
+BASE_DELAY = 1
 # Threshold to start rate limiting
-ATTEMPT_THRESHOLD = random.choice([30, 40, 50, 60, 70])
+ATTEMPT_THRESHOLD = random.choice([70, 75, 80, 85, 90])
+CONTROL_ATTEMPT_THRESHOLD = random.choice([5, 10, 15, 20, 25])
 ATTEMPTS_AFTER_SWITCH = 4
-MAX_ATTEMPTS = 90
-LINEAR_DELAY_INCREASE = 0.2
+MAX_ATTEMPTS = (ATTEMPT_THRESHOLD + 30) if TREATMENT else (CONTROL_ATTEMPT_THRESHOLD + 30)
+LINEAR_DELAY_INCREASE = 0.5 
 
 # Tracking dictionaries
 attempt_counter = defaultdict(int)
 current_list_tracking = {}
+control_tracking = {}
 last_credentials = defaultdict(dict)
 # Modify session_data to track attempts per list
 session_data = defaultdict(lambda: {
@@ -56,7 +60,7 @@ session_data = defaultdict(lambda: {
 # Add this near the other global variables at the top
 valid_credentials = {}  # Dictionary to store valid credentials per IP
 
-def generate_dummy_credentials(count=100):
+def generate_dummy_credentials(count=200):
     credentials = []
     for _ in range(count):
         username = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
@@ -93,13 +97,14 @@ def determine_credential_source(username, password):
 
 
 def calculate_delay(ip_address, username, password):
-    global attempt_counter, current_list_tracking, last_credentials, MAX_ATTEMPTS, session_data
+    global attempt_counter, current_list_tracking, last_credentials, MAX_ATTEMPTS, session_data, control_tracking
     current_source = determine_credential_source(username, password)
     print("current_source: ", current_source)
     
     # Initialize tracking for new IP addresses
     if ip_address not in current_list_tracking:
         current_list_tracking[ip_address] = current_source
+        control_tracking[ip_address] = current_source
         attempt_counter[ip_address] = 1
         # Initialize session_data for new IP if not already done
         if 'list_switches' not in session_data[ip_address]:
@@ -152,7 +157,16 @@ def calculate_delay(ip_address, username, password):
 
     if not TREATMENT:
         last_credentials[ip_address] = {'username': username, 'password': password}
-        return BASE_DELAY
+        # In the control group, we let 5 attempts pass before throttling so that participants see the effect of throttling
+        # Whichever list they start with, that list will then be heavily throttled and the other list will not be throttled
+        if attempt_counter[ip_address] < CONTROL_ATTEMPT_THRESHOLD:
+            return BASE_DELAY
+        else:
+            if current_source == control_tracking[ip_address]:
+                return BASE_DELAY + (attempt_counter[ip_address] - CONTROL_ATTEMPT_THRESHOLD) ** LINEAR_DELAY_INCREASE
+            else:
+                return BASE_DELAY 
+        
     else:
         last_credentials[ip_address] = {'username': username, 'password': password}
         
@@ -173,7 +187,7 @@ def home():
 
     qualtrics_data = {
         'condition': 1 if TREATMENT else 0,
-        't': ATTEMPT_THRESHOLD,
+        't': ATTEMPT_THRESHOLD if TREATMENT else CONTROL_ATTEMPT_THRESHOLD,
         'total_attempts': session_data[ip_address]['total_attempts'],
         'list_switches': session_data[ip_address]['list_switches'],
         'list1_attempts': session_data[ip_address]['list1_attempts'],
@@ -197,7 +211,7 @@ def home():
                 else:
                     message = f"Login failed. Use the credentials you discovered. {valid_credentials[ip_address]}"
                     message_class = 'danger'
-                    time.sleep(1)
+                    time.sleep(3)
                     return render_template('index.html',
                                         challenge_type='Brute Force',
                                         message=message,
@@ -220,7 +234,8 @@ def home():
                 # Store the successful credentials
                 valid_credentials[ip_address] = {
                     'username': last_credentials[ip_address]['username'],
-                    'password': last_credentials[ip_address]['password']
+                    'password': last_credentials[ip_address]['password'],
+                    'flag': 'picoCTF{br0t3__f0rc3__m4st3r}'
                 }
                 # Instead of redirecting, show success message with credentials
                 message = f"Login successful!"
@@ -231,7 +246,9 @@ def home():
                 message_class = 'danger'
                 
             if attempt_counter[ip_address] > ATTEMPT_THRESHOLD and TREATMENT:
-                alert = f"High number of attempts detected. We are getting throttled."
+                alert = f"Suspicious activity detected. We are getting throttled."
+            elif attempt_counter[ip_address] > CONTROL_ATTEMPT_THRESHOLD and not TREATMENT:
+                alert = f"Suspicious activity detected. We are getting throttled."
         except Exception as e:
             message = f"An error occurred."
             message_class = 'danger'
@@ -292,6 +309,41 @@ def locked_out():
     return render_template('locked_out.html', 
                          credentials1_url=url_for('credentials1'),
                          credentials2_url=url_for('credentials2'))
+
+@app.route('/download_qualtrics')
+def download_qualtrics():
+    ip_address = get_client_ip()
+    
+    # Check both valid credentials and session for authorization
+    if ip_address not in valid_credentials:
+        return redirect(url_for('home'))
+    
+    qualtrics_data = {
+        'condition': 1 if TREATMENT else 0,
+        't': ATTEMPT_THRESHOLD,
+        'total_attempts': session_data[ip_address]['total_attempts'],
+        'list_switches': session_data[ip_address]['list_switches'],
+        'list1_attempts': session_data[ip_address]['list1_attempts'],
+        'list2_attempts': session_data[ip_address]['list2_attempts'],
+        'unknown_attempts': session_data[ip_address]['unknown_attempts'],
+        'flag': 'picoCTF{br0t3__f0rc3__m4st3r}'
+    }
+    
+    # Convert the data to a JSON string
+    json_data = json.dumps(qualtrics_data, indent=2)
+    
+    # Create a BytesIO object to hold the data
+    mem = io.BytesIO()
+    mem.write(json_data.encode('utf-8'))
+    mem.seek(0)
+    
+    # Return the data as a downloadable file
+    return send_file(
+        mem,
+        as_attachment=True,
+        download_name='qualtrics_data.json',
+        mimetype='application/json'
+    )
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8087, debug=False)
