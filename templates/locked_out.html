@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Account Locked</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="alert alert-danger">
+            <h4 class="alert-heading">Account Locked!</h4>
+            <p>We detected that you're trying to use credentials that are not in our system.</p>
+            <p>Please download the latest credential files and try again:</p>
+            <ul>
+                <li><a href="{{ credentials1_url }}">Download Credentials List 1 ({{ request.url_root.rstrip('/') }}{{ credentials1_url }})</a></li>
+                <li><a href="{{ credentials2_url }}">Download Credentials List 2 ({{ request.url_root.rstrip('/') }}{{ credentials2_url }})</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html> 

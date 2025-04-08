@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login Successful - Challenge Complete</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h2>Challenge Complete!</h2>
+            </div>
+            <div class="card-body">
+                <h3>Congratulations!</h3>
+                <p>You have successfully completed the challenge using these credentials:</p>
+                <div class="alert alert-info">
+                    <strong>Username:</strong> {{ username }}<br>
+                    <strong>Password:</strong> {{ password }}
+                </div>
+
+                <div class="mt-4">
+                    <h4>Challenge Statistics</h4>
+                    <textarea class="form-control" rows="5" readonly>{{ qualtrics_data | tojson(indent=2) }}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

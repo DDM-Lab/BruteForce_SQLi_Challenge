@@ -1,14 +1,17 @@
-from flask import Flask, request, render_template, flash, send_file
+from flask import Flask, request, render_template, flash, send_file, redirect, url_for, session
 import os
 import random
 import time
 import string
 import argparse
 from collections import defaultdict
+import logging
 
+# Add at the start of your file, after the other imports
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 treatment_default = True
-
 # Parse command-line arguments
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Run the Flask application with treatment settings")
@@ -30,19 +33,28 @@ if args.treatment is not None:
     TREATMENT = str(args.treatment).lower() == "true"
 else:
     TREATMENT = treatment_default
-BASE_DELAY = 0.5
+BASE_DELAY = 3
 # Threshold to start rate limiting
 ATTEMPT_THRESHOLD = random.choice([30, 40, 50, 60, 70])
 ATTEMPTS_AFTER_SWITCH = 4
-MAX_ATTEMPTS = 100
+MAX_ATTEMPTS = 90
 LINEAR_DELAY_INCREASE = 0.2
 
 # Tracking dictionaries
 attempt_counter = defaultdict(int)
 current_list_tracking = {}
 last_credentials = defaultdict(dict)
-# Add session_data dictionary to track list switches and other metrics
-session_data = defaultdict(lambda: {'list_switches': 0, 'total_attempts': 0})
+# Modify session_data to track attempts per list
+session_data = defaultdict(lambda: {
+    'list_switches': 0,
+    'total_attempts': 0,
+    'list1_attempts': 0,
+    'list2_attempts': 0,
+    'unknown_attempts': 0
+})
+
+# Add this near the other global variables at the top
+valid_credentials = {}  # Dictionary to store valid credentials per IP
 
 def generate_dummy_credentials(count=100):
     credentials = []
@@ -66,16 +78,24 @@ def determine_credential_source(username, password):
     creds2 = set(CREDENTIALS_LIST2)
     
     attempt = f"{username}:{password}"
+    #logger.info(f"Attempting to match: {attempt}")
+    #logger.info(f"First few credentials in list1: {list(creds1)[:3]}")
+    #logger.info(f"First few credentials in list2: {list(creds2)[:3]}")
+    
     if attempt in creds1:
+        #logger.info("Found in list1")
         return "list1"
     elif attempt in creds2:
+        #logger.info("Found in list2")
         return "list2"
+    #logger.info("Not found in either list")
     return "unknown"
 
 
 def calculate_delay(ip_address, username, password):
     global attempt_counter, current_list_tracking, last_credentials, MAX_ATTEMPTS, session_data
     current_source = determine_credential_source(username, password)
+    print("current_source: ", current_source)
     
     # Initialize tracking for new IP addresses
     if ip_address not in current_list_tracking:
@@ -83,34 +103,60 @@ def calculate_delay(ip_address, username, password):
         attempt_counter[ip_address] = 1
         # Initialize session_data for new IP if not already done
         if 'list_switches' not in session_data[ip_address]:
-            session_data[ip_address] = {'list_switches': 0, 'total_attempts': 1}
+            session_data[ip_address] = {
+                'list_switches': 0,
+                'total_attempts': 1,
+                'list1_attempts': 0,
+                'list2_attempts': 0,
+                'unknown_attempts': 0
+            }
+            # Increment the appropriate list counter
+            if current_source == 'list1':
+                session_data[ip_address]['list1_attempts'] = 1
+            elif current_source == 'list2':
+                session_data[ip_address]['list2_attempts'] = 1
+            else:
+                session_data[ip_address]['unknown_attempts'] = 1
         else:
             session_data[ip_address]['total_attempts'] += 1
+            # Increment the appropriate list counter
+            if current_source == 'list1':
+                session_data[ip_address]['list1_attempts'] += 1
+            elif current_source == 'list2':
+                session_data[ip_address]['list2_attempts'] += 1
+            else:
+                session_data[ip_address]['unknown_attempts'] += 1
     else:
         attempt_counter[ip_address] += 1
         session_data[ip_address]['total_attempts'] += 1
+        # Increment the appropriate list counter
+        if current_source == 'list1':
+            session_data[ip_address]['list1_attempts'] += 1
+        elif current_source == 'list2':
+            session_data[ip_address]['list2_attempts'] += 1
+        else:
+            session_data[ip_address]['unknown_attempts'] += 1
+        
+        # Check if user switched lists
+        if current_list_tracking[ip_address] in ["list1", "list2"] and \
+           current_source in ["list1", "list2"] and \
+           current_list_tracking[ip_address] != current_source:
+            # If participant switched list, increment the switch counter
+            session_data[ip_address]['list_switches'] += 1
+            # Reset tracking and lower threshold
+            attempt_counter[ip_address] = 1
+            MAX_ATTEMPTS = ATTEMPTS_AFTER_SWITCH
+
+    # Update tracking before calculating delay
+    current_list_tracking[ip_address] = current_source
 
     if not TREATMENT:
         last_credentials[ip_address] = {'username': username, 'password': password}
         return BASE_DELAY
-        
     else:
-        # Check if user switched lists
-        if current_list_tracking[ip_address] != current_source and current_source != "unknown":
-            # If participant switched list, increment the switch counter
-            session_data[ip_address]['list_switches'] += 1
-            # Reset tracking
-            current_list_tracking[ip_address] = current_source
-            attempt_counter[ip_address] = 0
-            # If participant switched list, lower threshold
-            MAX_ATTEMPTS = ATTEMPTS_AFTER_SWITCH
-            # If participant switched list, reset delay
-        
         last_credentials[ip_address] = {'username': username, 'password': password}
         
         if attempt_counter[ip_address] > ATTEMPT_THRESHOLD:
-            # If we are above threshold, increase delay
-            # This is a simple linear increase where the delay is +0.2 seconds per attempt
             return BASE_DELAY + (attempt_counter[ip_address] - ATTEMPT_THRESHOLD) ** LINEAR_DELAY_INCREASE
         else:
             return BASE_DELAY
@@ -121,61 +167,81 @@ def home():
     message = ''
     message_class = ''
     alert = ''
-    
-    # Create a default worldbuilding context
-    worldbuilding = {'first_visit': True}
-    
+
     # Get client IP
     ip_address = get_client_ip()
-    
-    # If this is not the first visit, set first_visit to False
-    if ip_address in session_data:
-        worldbuilding['first_visit'] = False
+
+    qualtrics_data = {
+        'condition': 1 if TREATMENT else 0,
+        't': ATTEMPT_THRESHOLD,
+        'total_attempts': session_data[ip_address]['total_attempts'],
+        'list_switches': session_data[ip_address]['list_switches'],
+        'list1_attempts': session_data[ip_address]['list1_attempts'],
+        'list2_attempts': session_data[ip_address]['list2_attempts'],
+        'unknown_attempts': session_data[ip_address]['unknown_attempts'],
+        'flag': 'picoCTF{br0t3__f0rc3__m4st3r}'
+    }
 
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
         
-        # Mark as not first visit
-        worldbuilding['first_visit'] = False
-        
         try:
+            # First check if we already have valid credentials for this IP
+            if ip_address in valid_credentials:
+                # Only allow the known valid credentials
+                if (valid_credentials[ip_address]['username'] == username and 
+                    valid_credentials[ip_address]['password'] == password):
+                    session['authenticated'] = True
+                    return redirect(url_for('success')) # problematic
+                else:
+                    message = f"Login failed. Use the credentials you discovered. {valid_credentials[ip_address]}"
+                    message_class = 'danger'
+                    time.sleep(1)
+                    return render_template('index.html',
+                                        challenge_type='Brute Force',
+                                        message=message,
+                                        message_class=message_class,
+                                        qualtrics_data=qualtrics_data,
+                                        alert=alert)
+            
+            # Check if credentials are in any list before proceeding
+            source = determine_credential_source(username, password)
+            if source == "unknown":
+                time.sleep(10)
+                return redirect(url_for('locked_out'))
+            
+            # If credentials are valid, proceed with normal brute force logic
             delay = calculate_delay(ip_address, username, password)
             time.sleep(delay)
             
-            # Simplified authentication
+            # CORE BRUTEFORCE LOGIC BLOCK
             if attempt_counter[ip_address] > MAX_ATTEMPTS:
-                # Retrieve the last credentials submitted by the user
-                creds = last_credentials.get(ip_address, {'username': 'unknown', 'password': 'unknown'})
-                # Construct a message that includes the username, password, and the flag
-                message = (f"Login successful! Flag: picoCTF{{br0t3__f0rc3__m4st3r}}")
+                # Store the successful credentials
+                valid_credentials[ip_address] = {
+                    'username': last_credentials[ip_address]['username'],
+                    'password': last_credentials[ip_address]['password']
+                }
+                # Instead of redirecting, show success message with credentials
+                message = f"Login successful!"
                 message_class = 'success'
-                attempt_counter[ip_address] = 0
 
             else:
                 message = f"Login failed."
                 message_class = 'danger'
                 
             if attempt_counter[ip_address] > ATTEMPT_THRESHOLD and TREATMENT:
-                alert = f"High number of attempts detected. Throttling detected in this list."
+                alert = f"High number of attempts detected. We are getting throttled."
         except Exception as e:
-            message = f"An error occurred: {str(e)}"
+            message = f"An error occurred."
             message_class = 'danger'
 
-    qualtrics_data = {
-        'condition': 1 if TREATMENT else 0,
-        't': ATTEMPT_THRESHOLD,
-        'total_attempts': session_data[ip_address]['total_attempts']-session_data[ip_address]['list_switches']-1,
-        'list_switches': session_data[ip_address]['list_switches'],
-        'flag': 'picoCTF{br0t3__f0rc3__m4st3r}'
-    }
 
     return render_template('index.html', 
                          challenge_type='Brute Force', 
                          message=message, 
                          message_class=message_class, 
                          alert=alert,
-                         worldbuilding=worldbuilding,
                          qualtrics_data=qualtrics_data)
 
 
@@ -191,6 +257,41 @@ def credentials2():
 def download_script():
     filepath = os.path.abspath('brute_force_script.py')
     return send_file(filepath, as_attachment=True)
+
+# Add new route for success page
+@app.route('/success')
+def success():
+    ip_address = get_client_ip()
+    
+    # Check both valid credentials and session authentication
+    if ip_address not in valid_credentials or not session.get('authenticated'):
+        return redirect(url_for('home'))
+    
+    # Clear the authentication flag after successful access
+    session.pop('authenticated', None)
+    
+    qualtrics_data = {
+        'condition': 1 if TREATMENT else 0,
+        't': ATTEMPT_THRESHOLD,
+        'total_attempts': session_data[ip_address]['total_attempts'],
+        'list_switches': session_data[ip_address]['list_switches'],
+        'list1_attempts': session_data[ip_address]['list1_attempts'],
+        'list2_attempts': session_data[ip_address]['list2_attempts'],
+        'unknown_attempts': session_data[ip_address]['unknown_attempts'],
+        'flag': 'picoCTF{br0t3__f0rc3__m4st3r}'
+    }
+    
+    return render_template('success.html',
+                         username=valid_credentials[ip_address]['username'],
+                         password=valid_credentials[ip_address]['password'],
+                         flag='picoCTF{br0t3__f0rc3__m4st3r}',
+                         qualtrics_data=qualtrics_data)
+
+@app.route('/locked_out')
+def locked_out():
+    return render_template('locked_out.html', 
+                         credentials1_url=url_for('credentials1'),
+                         credentials2_url=url_for('credentials2'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8087, debug=False)
