@@ -4,18 +4,27 @@ from tqdm import tqdm
 from bs4 import BeautifulSoup
 import random
 from datetime import datetime
-
+from requests.auth import HTTPBasicAuth
 
 # Replace with your own paths
 PATH_TO_CREDENTIAL_1 = "./" + "credentials1.txt"
 PATH_TO_CREDENTIAL_2 = "./" + "credentials2.txt"
 # Replace with your own base URL
-BASE_URL = 'http://127.0.0.1:8087'
+BASE_URL = 'http://104.248.114.47:8087'
+
+# FOR PILOT STUDY ONLY
+SERVER_USERNAME = 'myuser'
+SERVER_PASSWORD = 'cimbiv-fuqgIg-jevtu4'
 
 def process_credentials(username, password, session, base_url):
     """Returns: (success_status)"""
     try:
-        response = session.post(f'{base_url}/', data={'username': username, 'password': password})
+        response = session.post(f'{base_url}/', data={'username': username, 'password': password}, auth=HTTPBasicAuth(SERVER_USERNAME, SERVER_PASSWORD))
+
+        # need to catch 404s or 401s
+        if response.status_code != 200:
+            print(f"Error: {response.text}")
+            raise Exception(f"Error: {response.text}")
             
         # Display server messages
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -42,6 +51,9 @@ def process_credentials(username, password, session, base_url):
     
     except KeyboardInterrupt:
         raise
+    except Exception as e:
+        print(f"Error: {e}")
+        return False
 
 def main():
     base_url = BASE_URL
@@ -75,6 +87,9 @@ def main():
                 if success:
                     break
             except KeyboardInterrupt:
+                break
+            except Exception as e:
+                print(f"Error: {e}")
                 break
 
 

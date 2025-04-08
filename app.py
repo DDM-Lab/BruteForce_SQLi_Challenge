@@ -41,7 +41,12 @@ ATTEMPT_THRESHOLD = random.choice([70, 75, 80, 85, 90])
 CONTROL_ATTEMPT_THRESHOLD = random.choice([5, 10, 15, 20, 25])
 ATTEMPTS_AFTER_SWITCH = 4
 MAX_ATTEMPTS = (ATTEMPT_THRESHOLD + 30) if TREATMENT else (CONTROL_ATTEMPT_THRESHOLD + 30)
-LINEAR_DELAY_INCREASE = 0.5 
+LINEAR_DELAY_INCREASE = 0.5
+
+logger.info(f"TREATMENT: {TREATMENT}")
+logger.info(f"ATTEMPT_THRESHOLD: {ATTEMPT_THRESHOLD}")
+logger.info(f"CONTROL_ATTEMPT_THRESHOLD: {CONTROL_ATTEMPT_THRESHOLD}")
+logger.info(f"MAX_ATTEMPTS: {MAX_ATTEMPTS}")
 
 # Tracking dictionaries
 attempt_counter = defaultdict(int)
@@ -289,7 +294,7 @@ def success():
     
     qualtrics_data = {
         'condition': 1 if TREATMENT else 0,
-        't': ATTEMPT_THRESHOLD,
+        't': ATTEMPT_THRESHOLD if TREATMENT else CONTROL_ATTEMPT_THRESHOLD,
         'total_attempts': session_data[ip_address]['total_attempts'],
         'list_switches': session_data[ip_address]['list_switches'],
         'list1_attempts': session_data[ip_address]['list1_attempts'],
@@ -320,7 +325,7 @@ def download_qualtrics():
     
     qualtrics_data = {
         'condition': 1 if TREATMENT else 0,
-        't': ATTEMPT_THRESHOLD,
+        't': ATTEMPT_THRESHOLD if TREATMENT else CONTROL_ATTEMPT_THRESHOLD,
         'total_attempts': session_data[ip_address]['total_attempts'],
         'list_switches': session_data[ip_address]['list_switches'],
         'list1_attempts': session_data[ip_address]['list1_attempts'],
