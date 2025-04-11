@@ -37,7 +37,7 @@ else:
     TREATMENT = treatment_default
 BASE_DELAY = 1
 # Threshold to start rate limiting
-ATTEMPT_THRESHOLD = random.choice([70, 75, 80, 85, 90])
+ATTEMPT_THRESHOLD = random.choice([75, 80, 85, 90, 95])
 CONTROL_ATTEMPT_THRESHOLD = random.choice([5, 10, 15, 20, 25])
 ATTEMPTS_AFTER_SWITCH = 4
 MAX_ATTEMPTS = (ATTEMPT_THRESHOLD + 30) if TREATMENT else (CONTROL_ATTEMPT_THRESHOLD + 30)
