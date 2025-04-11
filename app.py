@@ -13,7 +13,7 @@ import io
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-treatment_default = True
+treatment_default = False
 # Parse command-line arguments
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Run the Flask application with treatment settings")
