@@ -4,7 +4,9 @@ This problem demonstrates a brute-force attack on an online login form. You are 
 
 The goal of this problem is to fill in the missing information in the provided script and install the required dependencies to be able to run.
 
-This document assumes you have some familiarity with Python virtual environments and are comfortable using the command line.
+In this walkthrough you have two files:
+1. This file `walkthrough.md`
+2. The solver `requirements.txt`
 
 # Steps
 
