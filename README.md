@@ -15,11 +15,10 @@ You will need to have Docker and Docker Compose installed in your computer to ru
 - Then cd BruteForce_SQLi_Challenge
  
 2. Build the Docker image:
-```docker-compose build```
-
+```docker build -t bruteforce .```
 
 3. Start the application:
-```docker-compose up```
+```docker run -p 8087:8087 bruteforce```
 
 4. Access the application:
 Open a web browser and navigate to `http://localhost:8087`
