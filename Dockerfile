@@ -11,4 +11,4 @@ RUN pip install --no-cache-dir flask
 
 EXPOSE 8087
 
-CMD ["python", "app.py","--treatment","false"]
+CMD ["python", "app.py","--treatment","true"]
