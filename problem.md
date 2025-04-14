@@ -15,7 +15,6 @@ Your goal: Find the correct credentials to log in!
 The server will slow you down if you try too many times or switch lists.
 
 
-
 ## Challenge Options
 
 ```yaml
