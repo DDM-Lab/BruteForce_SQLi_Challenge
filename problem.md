@@ -5,7 +5,7 @@
 - Type: custom
 - Category: Web Exploitation
 - Points: 1
-- Templatable: yes
+- Templatable: no
 - MaxUsers: 1
 
 ## Description
