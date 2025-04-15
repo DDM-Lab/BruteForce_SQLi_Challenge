@@ -1,7 +1,7 @@
-# Web CSS
+# Brute_Force_Challenge
 
 - Namespace: picoctf/research
-- ID: brute-force
+- ID: login-brute-force-script
 - Type: custom
 - Category: Web Exploitation
 - Points: 1
@@ -13,21 +13,20 @@
 You are given two lists of username:password pairs.
 Your goal: Find the correct credentials to log in!
 
-The server will slow you down if you try too many times or switch lists.
+The server will slow you down if you try too many times or switch lists
 
 ## Details
 
 Browse {{link_as('/', 'here')}}, and find the flag!
-
-Download the bruteforce script here: {{url_for("brute_force_script.py", "here")}}
+Good Luck!
 
 ## Hints
 
-- Look at the Walkthrough
+- Look at the hints on the Walkthrough
 
 ## Solution Overview
 
-Use the provided brute force script.
+Use The provided bruteforce script.
 
 ## Challenge Options
 
@@ -43,7 +42,7 @@ init: true
 
 ## Learning Objective
 
-Understand the concept of Brute forcing
+Understand Brute Force attacks
 
 ## Tags
 
