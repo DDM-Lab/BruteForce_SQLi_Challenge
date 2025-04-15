@@ -1,12 +1,12 @@
 # Brute Force
 
-- Namespace: picoctf/research
-- ID: brute-force-login
+- Namespace: picoctf/examples
+- ID: brute-force
 - Type: custom
-- Category: Web
+- Category: General
 - Points: 1
-- Templatable: no
-- Max Users: 1
+- Templatable: yes
+- MaxUsers: 1
 
 ## Description
 You are given two lists of username:password pairs.
