@@ -4,8 +4,8 @@
 - ID: login-brute-force-script
 - Type: custom
 - Category: Web Exploitation
-- Points: 1
-- Templatable: yes
+- Points: 0
+- Templatable: no
 - MaxUsers: 1
 
 ## Description
