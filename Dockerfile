@@ -6,8 +6,9 @@ WORKDIR /challenge
 COPY . /challenge/
 RUN pip install --no-cache-dir -r requirements.txt
 
-
+RUN tar czvf /challenge/artifacts.tar.gz flag.txt
 RUN echo "{\"flag\":\"$(cat flag.txt)\"}" > /challenge/metadata.json
+
 
 EXPOSE 8087
 # The comment below is parsed by cmgr. You can reference the port by the name
