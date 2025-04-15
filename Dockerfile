@@ -5,7 +5,7 @@ WORKDIR /challenge
 
 COPY . /challenge/
 RUN pip install --no-cache-dir -r requirements.txt
-RUN tar czvf /challenge/artifacts.tar.gz brute_force_script.py
+
 
 RUN echo "{\"flag\":\"$(cat flag.txt)\"}" > /challenge/metadata.json
 
