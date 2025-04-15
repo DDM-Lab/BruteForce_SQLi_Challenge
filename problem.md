@@ -1,10 +1,11 @@
-# Brute Force 
+# Web CSS
 
 - Namespace: picoctf/research
+- ID: brute-force
 - Type: custom
 - Category: Web Exploitation
 - Points: 1
-- Templatable: no
+- Templatable: yes
 - MaxUsers: 1
 
 ## Description
@@ -16,22 +17,40 @@ The server will slow you down if you try too many times or switch lists.
 
 ## Details
 
-Know me and use them to get the flag!
-Find my first login page {{link_as('/', 'here')}}
+Browse {{link_as('/', 'here')}}, and find the flag!
+
+Download the bruteforce script here: {{url_for("brute_force_script.py", "here")}}
 
 ## Hints
 
-- Try to find me online
+- Look at the Walkthrough
 
 ## Solution Overview
 
-- Navigate to the login page
-- Get in to find information about the developer and their interests
-- Find the correct public key
-- Send encrypted commands
+Use the provided brute force script.
+
+## Challenge Options
+
+```yaml
+cpus: 0.5
+memory: 128m
+pidslimit: 20
+ulimits:
+  - nofile=128:128
+diskquota: 64m
+init: true
+```
+
+## Learning Objective
+
+Understand the concept of Brute forcing
+
+## Tags
+
+- web
 
 ## Attributes
 
 - author: DDM Lab
 - organization: picoCTF
-- event: Research Study
+- event: DDM LAB Research
