@@ -1,19 +1,31 @@
-# Brute Force
+# Web CSS
 
 - Namespace: picoctf/research
-- ID: brute-force-login
+- ID: brute-force
 - Type: custom
-- Category: Web
+- Category: Web Exploitation
 - Points: 1
-- Templatable: no
-- Max Users: 1
+- Templatable: yes
+- MaxUsers: 1
 
 ## Description
+
 You are given two lists of username:password pairs.
 Your goal: Find the correct credentials to log in!
 
 The server will slow you down if you try too many times or switch lists.
 
+## Details
+
+Browse {{link_as('/', 'here')}}, and find the flag!
+
+## Hints
+
+- Look at the Walkthrough
+
+## Solution Overview
+
+Use the provided brute force script.
 
 ## Challenge Options
 
@@ -26,8 +38,17 @@ ulimits:
 diskquota: 64m
 init: true
 ```
+
+## Learning Objective
+
+Understand the concept of Brute forcing
+
+## Tags
+
+- web
+
 ## Attributes
 
 - author: DDM Lab
 - organization: picoCTF
-- event: S-25 ddmlab reseach study
+- event: DDM LAB Research
