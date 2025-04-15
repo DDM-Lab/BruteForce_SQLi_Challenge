@@ -14,7 +14,11 @@ Your goal: Find the correct credentials to log in!
 
 The server will slow you down if you try too many times or switch lists.
 
+## Details
 
+Browse {{server("web")}}:{{port("web")}}, and find the flag!
+
+Download the bruteforce script here: {{url_for("brute_force_script.py", "here")}}
 
 ## Challenge Options
 
