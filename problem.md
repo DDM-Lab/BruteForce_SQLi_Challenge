@@ -1,7 +1,7 @@
 # Brute Force
 
 - Namespace: picoctf/examples
-- ID: brute-force
+- ID: brute-force1
 - Type: custom
 - Category: General
 - Points: 1
@@ -9,16 +9,21 @@
 - MaxUsers: 1
 
 ## Description
-You are given two lists of username:password pairs.
-Your goal: Find the correct credentials to log in!
 
-The server will slow you down if you try too many times or switch lists.
+Identify and connect to 4 open ports on the target system.
+Each successful connection will reveal part of the encrypted flag.
 
 ## Details
 
-Browse {{server("web")}}:{{port("web")}}, and find the flag!
+Access the challenge through this link:
 
-Download the bruteforce script here: {{url_for("brute_force_script.py", "here")}}
+## Hints
+
+- You use the walkthrough
+
+## Solution Overview
+
+The provided text is PNG, which has been converted to base64 format
 
 ## Challenge Options
 
@@ -31,8 +36,17 @@ ulimits:
 diskquota: 64m
 init: true
 ```
+
+## Learning Objective
+
+Identify various kinds of encoding.
+
+## Tags
+
+- python
+
 ## Attributes
 
 - author: DDM Lab
 - organization: picoCTF
-- event: S-25 ddmlab reseach study
+- event: DDM LAB Research
