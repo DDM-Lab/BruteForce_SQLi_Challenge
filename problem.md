@@ -1,7 +1,7 @@
-# SQL_VULN_SCORES
+# Brute_Force_Challenge
 
 - Namespace: picoctf/research
-- ID: login-brute-force
+- ID: login-brute-force-script
 - Type: custom
 - Category: Web Exploitation
 - Points: 1
