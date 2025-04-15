@@ -1,4 +1,4 @@
-FROM python:3.9-slim AS base
+FROM python:3.9-slim AS base1
 
 RUN mkdir /challenge && chmod 700 /challenge
 WORKDIR /challenge
