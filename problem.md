@@ -1,52 +1,37 @@
-# Brute Force
+# Brute Force 
 
-- Namespace: picoctf/examples
-- ID: brute-force1
+- Namespace: picoctf/research
 - Type: custom
-- Category: General
+- Category: Web Exploitation
 - Points: 1
-- Templatable: yes
+- Templatable: no
 - MaxUsers: 1
 
 ## Description
 
-Identify and connect to 4 open ports on the target system.
-Each successful connection will reveal part of the encrypted flag.
+You are given two lists of username:password pairs.
+Your goal: Find the correct credentials to log in!
+
+The server will slow you down if you try too many times or switch lists.
 
 ## Details
 
-Access the challenge through this link:
+Know me and use them to get the flag!
+Find my first login page {{link_as('/', 'here')}}
 
 ## Hints
 
-- You use the walkthrough
+- Try to find me online
 
 ## Solution Overview
 
-The provided text is PNG, which has been converted to base64 format
-
-## Challenge Options
-
-```yaml
-cpus: 0.5
-memory: 128m
-pidslimit: 20
-ulimits:
-  - nofile=128:128
-diskquota: 64m
-init: true
-```
-
-## Learning Objective
-
-Identify various kinds of encoding.
-
-## Tags
-
-- python
+- Navigate to the login page
+- Get in to find information about the developer and their interests
+- Find the correct public key
+- Send encrypted commands
 
 ## Attributes
 
 - author: DDM Lab
 - organization: picoCTF
-- event: DDM LAB Research
+- event: Research Study
