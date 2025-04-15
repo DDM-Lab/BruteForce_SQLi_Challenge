@@ -19,6 +19,8 @@ The server will slow you down if you try too many times or switch lists.
 
 Browse {{link_as('/', 'here')}}, and find the flag!
 
+Download the bruteforce script here: {{url_for("brute_force_script.py", "here")}}
+
 ## Hints
 
 - Look at the Walkthrough
