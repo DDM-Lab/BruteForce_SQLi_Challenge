@@ -13,28 +13,11 @@ import io
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-treatment_default = False
-# Parse command-line arguments
-def parse_arguments():
-    parser = argparse.ArgumentParser(description="Run the Flask application with treatment settings")
-    parser.add_argument(
-        "--treatment",
-        type=str,
-        choices=["true", "false", "True", "False"],
-        default=os.environ.get("TREATMENT", treatment_default),
-        help="Set the treatment condition (True/False, default: True, can also be set with TREATMENT env variable)"
-    )
-    return parser.parse_args()
+TREATMENT=True
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-args = parse_arguments()
-# Configuration
-if args.treatment is not None:
-    TREATMENT = str(args.treatment).lower() == "true"
-else:
-    TREATMENT = treatment_default
 BASE_DELAY = 1
 # Threshold to start rate limiting
 ATTEMPT_THRESHOLD = random.choice([75, 80, 85, 90])
