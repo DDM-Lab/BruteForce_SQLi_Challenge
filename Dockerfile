@@ -1,20 +1,21 @@
-# Use an official Python runtime as the base image
 FROM python:3.9-slim
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Set default value for TREATMENT
-ENV TREATMENT=True
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+COPY . .
 
-# Install the required packages
-RUN pip install --no-cache-dir flask
+RUN mkdir /challenge && chmod 700 /challenge
+# RUN echo "{\"flag\":\"$(cat /root/flag.txt)\"}" > /challenge/metadata.json
+RUN echo "{\"flag\":\"$(cat flag.txt)\"}" > /challenge/metadata.json
 
-# Make port 8087 available to the world outside this container
-EXPOSE 8087
 
-# Run the application
-CMD ["python", "app.py"]
+EXPOSE 8080
+# The comment below is parsed by cmgr. You can reference the port by the name
+# given, but if there is only one port published, you don't have to use the name
+# PUBLISH 8080 AS web
+
+
+CMD ["python", "app.py","--treatment","false"]
