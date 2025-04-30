@@ -346,7 +346,7 @@ def download_qualtrics():
     return send_file(
         mem,
         as_attachment=True,
-        download_name='qualtrics_data.json',
+        download_name='brute_force_challenge.txt',
         mimetype='application/json'
     )
 

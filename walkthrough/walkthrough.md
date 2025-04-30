@@ -10,14 +10,16 @@ In this walkthrough you have two files:
 
 # Steps
 
-1) We need to download the two credentials provided, `credentials1.txt` and `credentials2.txt`. If you are having trouble downloading, try right-clicking the URL and choosing "Download Linked File." If that doesn't work, try changing browsers or reviewing your current browser's settings.
-2) We then need to place these into a directory that we can reference later. We will need their absolute path for our script.
-3) We will now download the file `brute_force_script.py`. This file contains the code that we can use to try username and password combinations on the webserver.
-    a) Note: this file will not only allow us to try username and password combinations, but also will print any messages we get from the server.
-4) We then need to install some requirements. It is preferable if we create a `virtualenv` to do this. You can find information on how to do this (here)[https://docs.python.org/3/library/venv.html]
-5) Then, once we have the virtual environment, we can install the requirements file provided with this document. You can do this with `pip install -r /path/to/requirements.txt`
+1) You need to download the two credentials provided, `credentials1.txt` and `credentials2.txt`. If you are having trouble downloading, try right-clicking the URL and choosing "Download Linked File." If that doesn't work, try changing browsers or reviewing your current browser's settings.
+2) You then need to place these into a directory that you can reference later. You will need their absolute path for our script.
+3) You will now download the file `brute_force_script.py`. This file contains the code that you can use to try username and password combinations on the webserver.
+                
+    * Note: this file will not only allow you to try username and password combinations, but also will print any messages you get from the server.
+4) You then need to install some requirements. It is preferable if you create a `virtualenv` to do this. You can find information on how to do this (here)[https://docs.python.org/3/library/venv.html]
+5) Then, once you have the virtual environment, you can install the requirements file provided with this document. You can do this with `pip install -r /path/to/requirements.txt`
     a) Note: the current `requirements.txt` file lists Python packages and versions that may not be available for your operating system. This means you need to find and install an alternative version. A way you can do this is `pip install <package_name>`.
-6) To use this script, we will need to modify 3 things:
+6) To use this script, you will need to modify 3 things:
+
     a) First, find the absolute path for the credentials you downloaded. They should look like this "`/path/to/credentials1.txt`" (e.g., `/home/your_user/Downloads/bruteforce_files/credentials1.txt`)
     b) Currently, there are the following placeholders:
         ```
@@ -36,7 +38,7 @@ In this walkthrough you have two files:
 > Initial credential list (1/2):
 ```
 
-7) Here, you can choose which list you want to start with. For more information about the lists, refer to this website's landing page. After you choose a list, you will see:
+8) Here, you can choose which list you want to start with. For more information about the lists, refer to this website's landing page. After you choose a list, you will see:
 
 ```
 Initial credential list (1/2): 1
@@ -56,7 +58,7 @@ This progress bar will indicate how far along (and how fast) you are in testing 
         Download Credentials List 2 (<url>/credentials2.txt)
         ```
 
-8) When you found a successful combination, you will get this message:
+9) When you found a successful combination, you will get this message:
 
 ```
 Valid credentials found!
