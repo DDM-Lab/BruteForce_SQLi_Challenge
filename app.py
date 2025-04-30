@@ -37,8 +37,8 @@ else:
     TREATMENT = treatment_default
 BASE_DELAY = 1
 # Threshold to start rate limiting
-ATTEMPT_THRESHOLD = random.choice([75, 80, 85, 90, 95])
-CONTROL_ATTEMPT_THRESHOLD = random.choice([5, 10, 15, 20, 25])
+ATTEMPT_THRESHOLD = random.choice([75, 80, 85, 90])
+CONTROL_ATTEMPT_THRESHOLD = random.choice([10, 15, 20, 25])
 ATTEMPTS_AFTER_SWITCH = 4
 MAX_ATTEMPTS = (ATTEMPT_THRESHOLD + 30) if TREATMENT else (CONTROL_ATTEMPT_THRESHOLD + 30)
 LINEAR_DELAY_INCREASE = 0.5
@@ -168,7 +168,8 @@ def calculate_delay(ip_address, username, password):
             return BASE_DELAY
         else:
             if current_source == control_tracking[ip_address]:
-                return BASE_DELAY + (attempt_counter[ip_address] - CONTROL_ATTEMPT_THRESHOLD) ** LINEAR_DELAY_INCREASE
+                # change it here
+                return BASE_DELAY + 4
             else:
                 return BASE_DELAY 
         
@@ -176,7 +177,8 @@ def calculate_delay(ip_address, username, password):
         last_credentials[ip_address] = {'username': username, 'password': password}
         
         if attempt_counter[ip_address] > ATTEMPT_THRESHOLD:
-            return BASE_DELAY + (attempt_counter[ip_address] - ATTEMPT_THRESHOLD) ** LINEAR_DELAY_INCREASE
+            # change it here
+            return BASE_DELAY + 4
         else:
             return BASE_DELAY
 
