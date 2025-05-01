@@ -1,32 +1,36 @@
 # Brute_Force_Challenge
 
 - Namespace: picoctf/research
-- ID: login-brute-force-script
+- ID: login-brute-force-script-treatment
 - Type: custom
 - Category: Web Exploitation
-- Points: 0
+- Points: 1
 - Templatable: no
 - MaxUsers: 1
 
 ## Description
 
-You are given two lists of username:password pairs.
-Your goal: Find the correct credentials to log in!
+You will be able to access two lists of username:password pairs (credentials1.txt and credentials2.txt).
+Load the credentials into `brute_force_script.py` and try to break the login form.
+Keep an eye open on request rate limits... they might be onto you.
 
-The server will slow you down if you try too many times or switch lists
+**NOTE: Do not close the Qualtrics survey.**
+
 
 ## Details
 
 Browse {{link_as('/', 'here')}}, and find the flag!
-Good Luck!
+
+**NOTE: Do not forget to download the Qualtrics data (`brute_force_challenge.txt`) along with the flag!**
+
 
 ## Hints
 
-- Look at the hints on the Walkthrough
+- You can use the walkthrough provided in the Qualtrics survey.
 
 ## Solution Overview
 
-Use The provided bruteforce script.
+Use the provided brute force script. The solution is based on the number of attempts.
 
 ## Challenge Options
 
@@ -42,7 +46,7 @@ init: true
 
 ## Learning Objective
 
-Understand Brute Force attacks
+Observe a brute force attack in action.
 
 ## Tags
 
@@ -52,4 +56,4 @@ Understand Brute Force attacks
 
 - author: DDM Lab
 - organization: picoCTF
-- event: DDM LAB Research
+- event: picoCTF Experimental Problems 1

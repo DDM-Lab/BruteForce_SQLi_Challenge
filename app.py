@@ -13,6 +13,10 @@ import io
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+with open("/challenge/metadata.json", "r") as f:
+    metadata_flag = json.load(f)
+FLAG = metadata_flag['flag']
+
 TREATMENT=True
 
 app = Flask(__name__)
@@ -183,7 +187,7 @@ def home():
         'list1_attempts': session_data[ip_address]['list1_attempts'],
         'list2_attempts': session_data[ip_address]['list2_attempts'],
         'unknown_attempts': session_data[ip_address]['unknown_attempts'],
-        'flag': 'picoCTF{br0t3__f0rc3__m4st3r}'
+        'flag': f'{FLAG}'
     }
 
     if request.method == 'POST':
@@ -225,7 +229,7 @@ def home():
                 valid_credentials[ip_address] = {
                     'username': last_credentials[ip_address]['username'],
                     'password': last_credentials[ip_address]['password'],
-                    'flag': 'picoCTF{br0t3__f0rc3__m4st3r}'
+                    'flag': f'{FLAG}'
                 }
                 # Instead of redirecting, show success message with credentials
                 message = f"Login successful!"
@@ -285,13 +289,13 @@ def success():
         'list1_attempts': session_data[ip_address]['list1_attempts'],
         'list2_attempts': session_data[ip_address]['list2_attempts'],
         'unknown_attempts': session_data[ip_address]['unknown_attempts'],
-        'flag': 'picoCTF{br0t3__f0rc3__m4st3r}'
+        'flag': f'{FLAG}'
     }
     
     return render_template('success.html',
                          username=valid_credentials[ip_address]['username'],
                          password=valid_credentials[ip_address]['password'],
-                         flag='picoCTF{br0t3__f0rc3__m4st3r}',
+                         flag=FLAG,
                          qualtrics_data=qualtrics_data)
 
 @app.route('/locked_out')
@@ -316,7 +320,7 @@ def download_qualtrics():
         'list1_attempts': session_data[ip_address]['list1_attempts'],
         'list2_attempts': session_data[ip_address]['list2_attempts'],
         'unknown_attempts': session_data[ip_address]['unknown_attempts'],
-        'flag': 'picoCTF{br0t3__f0rc3__m4st3r}'
+        'flag': f'{FLAG}'
     }
     
     # Convert the data to a JSON string

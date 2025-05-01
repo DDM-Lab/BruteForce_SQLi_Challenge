@@ -7,15 +7,17 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN mkdir /challenge && chmod 700 /challenge
-# RUN echo "{\"flag\":\"$(cat /root/flag.txt)\"}" > /challenge/metadata.json
-RUN echo "{\"flag\":\"$(cat flag.txt)\"}" > /challenge/metadata.json
+ARG SEED
+ENV SEED=${SEED}
+ARG FLAG
+ENV FLAG=${FLAG}
 
+RUN mkdir /challenge && chmod 700 /challenge
+RUN python setup_challenge.py
 
 EXPOSE 8080
 # The comment below is parsed by cmgr. You can reference the port by the name
 # given, but if there is only one port published, you don't have to use the name
 # PUBLISH 8080 AS web
 
-
-CMD ["python", "app.py","--treatment","false"]
+CMD ["python", "app.py"]

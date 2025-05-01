@@ -9,17 +9,14 @@ from requests.auth import HTTPBasicAuth
 # Replace with your own paths
 PATH_TO_CREDENTIAL_1 = "./" + "credentials1.txt"
 PATH_TO_CREDENTIAL_2 = "./" + "credentials2.txt"
-# Replace with your own base URL
-BASE_URL = 'http://104.248.114.47:8087'
+# Replace with the correct URL and port
+BASE_URL = 'http://<url>:<port>'
 
-# FOR PILOT STUDY ONLY
-SERVER_USERNAME = 'myuser'
-SERVER_PASSWORD = 'cimbiv-fuqgIg-jevtu4'
 
 def process_credentials(username, password, session, base_url):
     """Returns: (success_status)"""
     try:
-        response = session.post(f'{base_url}/', data={'username': username, 'password': password}, auth=HTTPBasicAuth(SERVER_USERNAME, SERVER_PASSWORD))
+        response = session.post(f'{base_url}/', data={'username': username, 'password': password})
 
         # need to catch 404s or 401s
         if response.status_code != 200:
