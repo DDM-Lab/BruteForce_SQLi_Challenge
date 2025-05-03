@@ -8,6 +8,8 @@ from collections import defaultdict
 import logging
 import json
 import io
+import sys
+
 
 # Add at the start of your file, after the other imports
 logging.basicConfig(level=logging.INFO)
@@ -17,10 +19,21 @@ with open("/challenge/metadata.json", "r") as f:
     metadata_flag = json.load(f)
 FLAG = metadata_flag['flag']
 
-TREATMENT=True
+DEFAULT_CONDITION = False
+# Parse command line arguments
+parser = argparse.ArgumentParser(description='Brute Force Challenge Application')
+parser.add_argument('--treatment', action='store_true', help='Enable treatment condition')
+args = parser.parse_args()
+
+if '--treatment' in sys.argv:
+    TREATMENT = True
+elif os.environ.get('TREATMENT', '').lower() in ('true', '1', 'yes'):
+    TREATMENT = True
+else:
+    TREATMENT = DEFAULT_CONDITION
 
 app = Flask(__name__)
-app.secret_key = os.urandom(24)
+app.secret_key = os.urandom(24)  # Use a random secret key for session management
 
 BASE_DELAY = 1
 # Threshold to start rate limiting

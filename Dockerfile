@@ -20,4 +20,4 @@ EXPOSE 8080
 # given, but if there is only one port published, you don't have to use the name
 # PUBLISH 8080 AS web
 
-CMD ["python", "app.py"]
+CMD ["python", "app.py", "--treatment"]

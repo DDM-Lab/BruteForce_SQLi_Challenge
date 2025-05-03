@@ -1,4 +1,4 @@
-# Brute_Force_Challenge
+# Dark vault
 
 - Namespace: picoctf/research
 - ID: login-brute-force-script-treatment
