@@ -1,3 +1,5 @@
+# CTF Challenge: Dark Vault
+
 # Introduction
 
 This problem demonstrates a brute-force attack on an online login form. You are given two lists of username and passwords in .txt files with the format "<username>:<password>".
