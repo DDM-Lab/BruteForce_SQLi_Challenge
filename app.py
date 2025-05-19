@@ -15,6 +15,8 @@ import sys
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
+
 with open("/challenge/metadata.json", "r") as f:
     metadata_flag = json.load(f)
 FLAG = metadata_flag['flag']
@@ -192,16 +194,6 @@ def home():
     # Get client IP
     ip_address = get_client_ip()
 
-    qualtrics_data = {
-        'condition': 1 if TREATMENT else 0,
-        't': ATTEMPT_THRESHOLD if TREATMENT else CONTROL_ATTEMPT_THRESHOLD,
-        'total_attempts': session_data[ip_address]['total_attempts'],
-        'list_switches': session_data[ip_address]['list_switches'],
-        'list1_attempts': session_data[ip_address]['list1_attempts'],
-        'list2_attempts': session_data[ip_address]['list2_attempts'],
-        'unknown_attempts': session_data[ip_address]['unknown_attempts'],
-        'flag': f'{FLAG}'
-    }
 
     if request.method == 'POST':
         username = request.form.get('username')
@@ -223,7 +215,6 @@ def home():
                                         challenge_type='Brute Force',
                                         message=message,
                                         message_class=message_class,
-                                        qualtrics_data=qualtrics_data,
                                         alert=alert)
             
             # Check if credentials are in any list before proceeding
@@ -242,7 +233,6 @@ def home():
                 valid_credentials[ip_address] = {
                     'username': last_credentials[ip_address]['username'],
                     'password': last_credentials[ip_address]['password'],
-                    'flag': f'{FLAG}'
                 }
                 # Instead of redirecting, show success message with credentials
                 message = f"Login successful!"
@@ -265,8 +255,7 @@ def home():
                          challenge_type='Brute Force', 
                          message=message, 
                          message_class=message_class, 
-                         alert=alert,
-                         qualtrics_data=qualtrics_data)
+                         alert=alert)
 
 
 @app.route('/credentials1.txt')
@@ -282,6 +271,15 @@ def download_script():
     filepath = os.path.abspath('brute_force_script.py')
     return send_file(filepath, as_attachment=True)
 
+
+#@app.route('/get_flag')
+#def get_flag():
+#    ip_address = get_client_ip()
+#    if ip_address not in valid_credentials:
+#        return redirect(url_for('home'))
+#
+#    return f"Your flag is: {FLAG}"
+
 # Add new route for success page
 @app.route('/success')
 def success():
@@ -294,22 +292,11 @@ def success():
     # Clear the authentication flag after successful access
     session.pop('authenticated', None)
     
-    qualtrics_data = {
-        'condition': 1 if TREATMENT else 0,
-        't': ATTEMPT_THRESHOLD if TREATMENT else CONTROL_ATTEMPT_THRESHOLD,
-        'total_attempts': session_data[ip_address]['total_attempts'],
-        'list_switches': session_data[ip_address]['list_switches'],
-        'list1_attempts': session_data[ip_address]['list1_attempts'],
-        'list2_attempts': session_data[ip_address]['list2_attempts'],
-        'unknown_attempts': session_data[ip_address]['unknown_attempts'],
-        'flag': f'{FLAG}'
-    }
     
     return render_template('success.html',
                          username=valid_credentials[ip_address]['username'],
                          password=valid_credentials[ip_address]['password'],
-                         flag=FLAG,
-                         qualtrics_data=qualtrics_data)
+                         flag=FLAG)
 
 @app.route('/locked_out')
 def locked_out():
