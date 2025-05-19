@@ -1,7 +1,7 @@
 # Dark vault
 
 - Namespace: picoctf/research
-- ID: login-brute-force-script-treatment
+- ID: login-brute-force-script-control
 - Type: custom
 - Category: Web Exploitation
 - Points: 1
