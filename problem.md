@@ -1,7 +1,7 @@
 # Dark vault
 
 - Namespace: picoctf/research
-- ID: login-brute-force-script-control
+- ID: login-brute-force-script-treatment
 - Type: custom
 - Category: Web Exploitation
 - Points: 1
@@ -56,4 +56,4 @@ Observe a brute force attack in action.
 
 - author: DDM Lab
 - organization: picoCTF
-- event: picoCTF Experimental Problems 2
+- event: picoCTF Experimental Problems 1
